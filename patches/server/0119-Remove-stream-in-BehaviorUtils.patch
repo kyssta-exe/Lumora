@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HaHaWTH <102713261+HaHaWTH@users.noreply.github.com>
+Date: Sat, 26 Oct 2024 00:56:24 +0800
+Subject: [PATCH] Remove stream in BehaviorUtils
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java b/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
+index 74fe07a3737728b67987ef794103346c1e428109..e2de86d7a86fde183c3ece4de0a1f899a7c3b8b0 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
++++ b/src/main/java/net/minecraft/world/entity/ai/behavior/BehaviorUtils.java
+@@ -122,12 +122,20 @@ public class BehaviorUtils {
+ 
+     public static SectionPos findSectionClosestToVillage(ServerLevel world, SectionPos center, int radius) {
+         int j = world.sectionsToVillage(center);
+-        Stream<SectionPos> stream = SectionPos.cube(center, radius).filter((sectionposition1) -> { // CraftBukkit - decompile error
+-            return world.sectionsToVillage(sectionposition1) < j;
+-        });
++        // Leaf start - Remove stream usage
++        SectionPos closestSection = center;
++        int closestDistance = j;
+ 
+         Objects.requireNonNull(world);
+-        return (SectionPos) stream.min(Comparator.comparingInt(world::sectionsToVillage)).orElse(center);
++        for (SectionPos sectionPosition : SectionPos.cube(center, radius).toList()) {
++            int distance = world.sectionsToVillage(sectionPosition);
++            if (distance < closestDistance) {
++                closestDistance = distance;
++                closestSection = sectionPosition;
++            }
++        }
++        return closestSection;
++        // Leaf end - Remove stream usage
+     }
+ 
+     public static boolean isWithinAttackRange(Mob mob, LivingEntity target, int rangedWeaponReachReduction) {
