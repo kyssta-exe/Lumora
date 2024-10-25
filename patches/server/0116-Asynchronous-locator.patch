@@ -278,10 +278,10 @@ index 00ed0d5ad535faa36111ab28bb0cf1317eb067ec..477aa4f069ab18de2c764f74dc26db52
              skipReferencedStructures = event.shouldFindUnexplored();
 diff --git a/src/main/java/org/dreeam/leaf/async/locate/AsyncLocator.java b/src/main/java/org/dreeam/leaf/async/locate/AsyncLocator.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..b03c908d1e630d08ba91279886d244977e9de4b6
+index 0000000000000000000000000000000000000000..0eaa9b60ac139db47a028970557c3a84166efc49
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/async/locate/AsyncLocator.java
-@@ -0,0 +1,161 @@
+@@ -0,0 +1,160 @@
 +package org.dreeam.leaf.async.locate;
 +
 +import ca.spottedleaf.moonrise.common.util.TickThread;
@@ -429,8 +429,7 @@ index 0000000000000000000000000000000000000000..b03c908d1e630d08ba91279886d24497
 +         * thread.
 +         */
 +        public LocateTask<T> thenOnServerThread(Consumer<T> action) {
-+            // noinspection ResultOfMethodCallIgnored
-+            completableFuture.thenAccept(pos -> server.submit(() -> action.accept(pos)));
++            completableFuture.thenAccept(pos -> server.scheduleOnMain(() -> action.accept(pos)));
 +            return this;
 +        }
 +
