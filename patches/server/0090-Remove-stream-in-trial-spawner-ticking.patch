@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Dreeam <61569423+Dreeam-qwq@users.noreply.github.com>
 Date: Sat, 5 Oct 2024 15:39:15 -0400
-Subject: [PATCH] Optimize trial spawner ticking
+Subject: [PATCH] Remove stream in trial spawner ticking
 
 
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java b/src/main/java/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java

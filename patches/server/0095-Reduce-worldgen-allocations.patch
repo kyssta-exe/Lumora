@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: HaHaWTH <102713261+HaHaWTH@users.noreply.github.com>
 Date: Fri, 14 Jun 2024 23:19:55 +0800
-Subject: [PATCH] Reduce-worldgen-allocations
+Subject: [PATCH] Reduce worldgen allocations
 
 This change optimizes the way SurfaceRules update their biome supplier,avoiding unnecessary object creations and thus reducing memory allocations
 during world generation. The update method now reuses the existing PositionalBiomeGetter object if it's already present, otherwise it
@@ -11,7 +11,7 @@ allocation by directly accessing the rules list, which further contributes
 to reducing garbage collection pressure during world generation.
 
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/NoiseChunk.java b/src/main/java/net/minecraft/world/level/levelgen/NoiseChunk.java
-index 5e89428321d91edb893826b0eb0b9050d327d310..2bee2988b5019d81da25784ef60feb3589f32538 100644
+index 5e89428321d91edb893826b0eb0b9050d327d310..3e8882e4779d6037025e7ee26ebbb46a55a7e52d 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/NoiseChunk.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/NoiseChunk.java
 @@ -359,7 +359,14 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
@@ -26,12 +26,12 @@ index 5e89428321d91edb893826b0eb0b9050d327d310..2bee2988b5019d81da25784ef60feb35
 +            this.wrapped.put(function, func);
 +        }
 +        return func;
-+        // Leaf end
++        // Leaf end - Avoid lambda allocation
      }
  
      private DensityFunction wrapNew(DensityFunction function) {
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java b/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java
-index 9df053ddff459d4aab478106c6e66a5fc3cda8f6..24ba023c0789984dd173e982030c29406c110428 100644
+index 9df053ddff459d4aab478106c6e66a5fc3cda8f6..49e2aee0093eb8fa34fc7fe11f376c1dd67aa5f1 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/SurfaceRules.java
 @@ -314,8 +314,14 @@ public class SurfaceRules {
@@ -47,7 +47,7 @@ index 9df053ddff459d4aab478106c6e66a5fc3cda8f6..24ba023c0789984dd173e982030c2940
 +                this.biome = getter = new org.dreeam.leaf.util.biome.PositionalBiomeGetter(this.biomeGetter, this.pos);
 +            }
 +            ((org.dreeam.leaf.util.biome.PositionalBiomeGetter)getter).update(blockX, blockY, blockZ);
-+            // Leaf end
++            // Leaf end - Reuse supplier object instead of creating new ones every time
              this.blockY = blockY;
              this.waterHeight = fluidHeight;
              this.stoneDepthBelow = stoneDepthBelow;
@@ -62,12 +62,12 @@ index 9df053ddff459d4aab478106c6e66a5fc3cda8f6..24ba023c0789984dd173e982030c2940
 +            //noinspection ForLoopReplaceableByForEach
 +            for (int i = 0; i < size; i++) {
 +                BlockState blockState = this.rules.get(i).tryApply(x, y, z);
-+                // Leaf end
++                // Leaf end - Avoid iterator allocation
                  if (blockState != null) {
                      return blockState;
                  }
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/material/MaterialRuleList.java b/src/main/java/net/minecraft/world/level/levelgen/material/MaterialRuleList.java
-index afdbc74a3012fa717f59ecef613567338d285b7b..b219a5c1a489f337ceb96a80246fa8c8121f8a4f 100644
+index afdbc74a3012fa717f59ecef613567338d285b7b..088e02e0941341fea958413176f49ae262e04d2a 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/material/MaterialRuleList.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/material/MaterialRuleList.java
 @@ -10,13 +10,16 @@ public record MaterialRuleList(List<NoiseChunk.BlockStateFiller> materialRuleLis
@@ -79,7 +79,7 @@ index afdbc74a3012fa717f59ecef613567338d285b7b..b219a5c1a489f337ceb96a80246fa8c8
 -            if (blockState != null) {
 -                return blockState;
 -            }
-+        // Leaf start - avoid iterator allocation
++        // Leaf start - Avoid iterator allocation
 +        BlockState blockState = null;
 +        int s = this.materialRuleList.size();
 +
@@ -90,7 +90,7 @@ index afdbc74a3012fa717f59ecef613567338d285b7b..b219a5c1a489f337ceb96a80246fa8c8
  
 -        return null;
 +        return blockState;
-+        // Leaf end
++        // Leaf end - Avoid iterator allocation
      }
  }
 diff --git a/src/main/java/org/dreeam/leaf/util/biome/PositionalBiomeGetter.java b/src/main/java/org/dreeam/leaf/util/biome/PositionalBiomeGetter.java
