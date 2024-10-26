@@ -3,13 +3,12 @@ From: HaHaWTH <102713261+HaHaWTH@users.noreply.github.com>
 Date: Sat, 26 Oct 2024 00:06:04 +0800
 Subject: [PATCH] Remove stream in Brain
 
-Dreeam TODO: Check this
 
 diff --git a/src/main/java/net/minecraft/world/entity/ai/Brain.java b/src/main/java/net/minecraft/world/entity/ai/Brain.java
-index 2ae8c9d56d88987b750e57025d313cfa9300c7e4..f6439fb10031a8f17ce3a5bee9f6e89275edebc7 100644
+index 2ae8c9d56d88987b750e57025d313cfa9300c7e4..88ba505fc5ca084317aaf6be402472ccd42413d8 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/Brain.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/Brain.java
-@@ -69,13 +69,17 @@ public class Brain<E extends LivingEntity> {
+@@ -69,13 +69,22 @@ public class Brain<E extends LivingEntity> {
          mutableObject.setValue(
              (new MapCodec<Brain<E>>() {
                      public <T> Stream<T> keys(DynamicOps<T> dynamicOps) {
@@ -20,32 +19,62 @@ index 2ae8c9d56d88987b750e57025d313cfa9300c7e4..f6439fb10031a8f17ce3a5bee9f6e892
 -                                        .stream()
 -                            )
 -                            .map(id -> dynamicOps.createString(id.toString()));
-+                        // Leaf start - Optimize Brain
-+                        List<String> results = new java.util.ArrayList<>();
++                        // Leaf start - Remove stream in Brain
++                        List<T> results = new java.util.ArrayList<>();
++
 +                        for (MemoryModuleType<?> memoryType : memoryModules) {
-+                            Optional<?> codecOptional = memoryType.getCodec();
-+                            if (codecOptional.isPresent()) {
-+                                net.minecraft.resources.ResourceLocation id = BuiltInRegistries.MEMORY_MODULE_TYPE.getKey(memoryType);
-+                                results.add(id.toString());
++                            final Optional<?> codec = memoryType.getCodec();
++
++                            if (codec.isPresent()) {
++                                final net.minecraft.resources.ResourceLocation id = BuiltInRegistries.MEMORY_MODULE_TYPE.getKey(memoryType);
++                                final T ops = dynamicOps.createString(id.toString());
++
++                                results.add(ops);
 +                            }
 +                        }
-+                        return results.stream().map(dynamicOps::createString);
-+                        // Leaf end - Optimize Brain
++
++                        return results.stream();
++                        // Leaf end - Remove stream in Brain
                      }
  
                      public <T> DataResult<Brain<E>> decode(DynamicOps<T> dynamicOps, MapLike<T> mapLike) {
-@@ -152,7 +156,13 @@ public class Brain<E extends LivingEntity> {
+@@ -110,7 +119,8 @@ public class Brain<E extends LivingEntity> {
+                     }
+ 
+                     public <T> RecordBuilder<T> encode(Brain<E> brain, DynamicOps<T> dynamicOps, RecordBuilder<T> recordBuilder) {
+-                        brain.memories().forEach(entry -> entry.serialize(dynamicOps, recordBuilder));
++                        brain.serializeMemories(dynamicOps, recordBuilder); // Leaf - Remove stream in Brain
++
+                         return recordBuilder;
+                     }
+                 })
+@@ -152,8 +162,28 @@ public class Brain<E extends LivingEntity> {
      }
  
      Stream<Brain.MemoryValue<?>> memories() {
 -        return this.memories.entrySet().stream().map(entry -> Brain.MemoryValue.createUnchecked(entry.getKey(), entry.getValue()));
-+        // Leaf start - Optimize Brain
++        // Leaf start - Remove stream in Brain
++        return memoriesList().stream();
++    }
++
++    List<Brain.MemoryValue<?>> memoriesList() {
 +        List<Brain.MemoryValue<?>> result = new java.util.ArrayList<>();
++
 +        for (Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> entry : this.memories.entrySet()) {
 +            result.add(Brain.MemoryValue.createUnchecked(entry.getKey(), entry.getValue()));
 +        }
-+        return result.stream();
-+        // Leaf end - Optimize Brain
++
++        return result;
++    }
++
++    <T> void serializeMemories(DynamicOps<T> dynamicOps, RecordBuilder<T> recordBuilder) {
++        for (Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> entry : this.memories.entrySet()) {
++            final Brain.MemoryValue<?> result = Brain.MemoryValue.createUnchecked(entry.getKey(), entry.getValue());
++
++            result.serialize(dynamicOps, recordBuilder);
++        }
      }
++    // Leaf end - Remove stream in Brain
  
      public boolean hasMemoryValue(MemoryModuleType<?> type) {
+         return this.checkMemory(type, MemoryStatus.VALUE_PRESENT);

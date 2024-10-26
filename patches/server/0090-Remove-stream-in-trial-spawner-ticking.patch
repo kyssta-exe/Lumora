@@ -5,7 +5,7 @@ Subject: [PATCH] Remove stream in trial spawner ticking
 
 
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java b/src/main/java/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java
-index 005aea8a747e9cbbc352b8b57c64b84ec71ad321..a66e0b303aac2952c06f1ec704df0edc27d85409 100644
+index 005aea8a747e9cbbc352b8b57c64b84ec71ad321..f687af7374e62ed0d004e12283fbc9008cf15e28 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java
 @@ -173,17 +173,22 @@ public enum TrialSpawnerState implements StringRepresentable {
@@ -23,7 +23,7 @@ index 005aea8a747e9cbbc352b8b57c64b84ec71ad321..a66e0b303aac2952c06f1ec704df0edc
 -                        && player.distanceToSqr(pos.getCenter()) <= (double)Mth.square(logic.getRequiredPlayerRange())
 -            )
 -            .toList();
-+        // Leaf start - Optimize trial spawner ticking
++        // Leaf start - Remove stream in trial spawner ticking
 +        List<Player> list = new java.util.ArrayList<>();
 +
 +        for (UUID uuid : data.detectedPlayers) {
@@ -37,7 +37,7 @@ index 005aea8a747e9cbbc352b8b57c64b84ec71ad321..a66e0b303aac2952c06f1ec704df0edc
 +                list.add(player);
 +            }
 +        }
-+        // Leaf end - Optimize trial spawner ticking
++        // Leaf end - Remove stream in trial spawner ticking
 +
          if (list.isEmpty()) {
              return Optional.empty();
@@ -53,7 +53,7 @@ index 005aea8a747e9cbbc352b8b57c64b84ec71ad321..a66e0b303aac2952c06f1ec704df0edc
 -        List<? extends Entity> list = world.random.nextBoolean() ? stream.toList() : players;
 -        if (list.isEmpty()) {
 -            return null;
-+        // Leaf start - Optimize trial spawner ticking
++        // Leaf start - Remove stream in trial spawner ticking
 +        if (world.random.nextBoolean()) {
 +            List<Entity> list = new java.util.ArrayList<>();
 +            for (UUID uuid : entityUuids) {
@@ -76,7 +76,7 @@ index 005aea8a747e9cbbc352b8b57c64b84ec71ad321..a66e0b303aac2952c06f1ec704df0edc
 +                return players.size() == 1 ? players.getFirst() : Util.getRandom(players, world.random);
 +            }
          }
-+        // Leaf end - Optimize trial spawner ticking
++        // Leaf end - Remove stream in trial spawner ticking
      }
  
      private boolean timeToSpawnItemSpawner(ServerLevel world, TrialSpawnerData data) {
