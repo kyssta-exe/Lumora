@@ -23,7 +23,6 @@ Fix-cow-rotation-when-shearing-mooshroom.patch
 Skip-events-if-there-s-no-listeners.patch
 Add-5-second-tps-average-in-tps.patch
 Arrows-should-not-reset-despawn-counter.patch
-Halloween-options-and-optimizations.patch
 MC-238526-Fix-spawner-not-spawning-water-animals-cor.patch
 Option-to-disable-kick-for-out-of-order-chat.patch
 Remove-Timings.patch
@@ -3558,7 +3557,7 @@ index 4addcfe248dd4705be7e67551b258ce86c57e194..82d3e442f6d31211701878fc5ae7a346
              if (baseEntity == null) {
                  if (this.isCombat && (!targetEntity.canBeSeenAsEnemy() || targetEntity.level().getDifficulty() == Difficulty.PEACEFUL)) {
 diff --git a/src/main/java/net/minecraft/world/entity/ambient/Bat.java b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
-index f223e369dd8d781e32e1f06572b2ae717afd6f32..8938cd09b27bc204001e51c17cefe4dd0e86f25a 100644
+index c888ca771efa7a570b8302d48e69fbb69bf98bd9..315bcf872fffd5e03c9194040a69eccb03af1aac 100644
 --- a/src/main/java/net/minecraft/world/entity/ambient/Bat.java
 +++ b/src/main/java/net/minecraft/world/entity/ambient/Bat.java
 @@ -44,12 +44,59 @@ public class Bat extends AmbientCreature {
@@ -3675,6 +3674,23 @@ index f223e369dd8d781e32e1f06572b2ae717afd6f32..8938cd09b27bc204001e51c17cefe4dd
      @Override
      public void readAdditionalSaveData(CompoundTag nbt) {
          super.readAdditionalSaveData(nbt);
+@@ -229,7 +307,7 @@ public class Bat extends AmbientCreature {
+             int i = world.getMaxLocalRawBrightness(pos);
+             byte b0 = 4;
+ 
+-            if (Bat.isHalloween()) {
++            if (Bat.isHalloweenSeason(world.getMinecraftWorld())) { // Purpur
+                 b0 = 7;
+             } else if (random.nextBoolean()) {
+                 return false;
+@@ -273,6 +351,7 @@ public class Bat extends AmbientCreature {
+     private static long nextHalloweenEnd = 0;
+     // Gale end - predict Halloween
+ 
++    public static boolean isHalloweenSeason(Level level) { return level.purpurConfig.forceHalloweenSeason || isHalloween(); } // Purpur
+     private static boolean isHalloween() {
+         // Gale start - predict Halloween
+         long currentEpochMillis = System.currentTimeMillis();
 diff --git a/src/main/java/net/minecraft/world/entity/animal/AbstractFish.java b/src/main/java/net/minecraft/world/entity/animal/AbstractFish.java
 index 3231eaa6af2ddfe4095ff2d650f580ebd4d43aea..e8cb124d232f7316cc8c35dd8bd12f79bbcda7d6 100644
 --- a/src/main/java/net/minecraft/world/entity/animal/AbstractFish.java
@@ -8305,7 +8321,7 @@ index 42bd2d9a1528b6210e4dfb56233062fd97c9743b..2a4425d04917b32c7ae5af3e7422c0ba
 +    // Purpur end - Shears can defuse TNT
  }
 diff --git a/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java b/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java
-index 3b5cf6ffb74d11bea5eb21bd66d679734ff5000c..e64a2a551a2190cf2edff3630f662f4a97605832 100644
+index 3b5cf6ffb74d11bea5eb21bd66d679734ff5000c..f9532a45419699585d1f20d27d5857a3e953ec55 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/AbstractSkeleton.java
 @@ -66,16 +66,19 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
@@ -8368,7 +8384,20 @@ index 3b5cf6ffb74d11bea5eb21bd66d679734ff5000c..e64a2a551a2190cf2edff3630f662f4a
          super.aiStep();
      }
  
-@@ -209,7 +189,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+@@ -156,11 +136,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+         this.reassessWeaponGoal();
+         this.setCanPickUpLoot(this.level().paperConfig().entities.behavior.mobsCanAlwaysPickUpLoot.skeletons || randomsource.nextFloat() < 0.55F * difficulty.getSpecialMultiplier()); // Paper - Add world settings for mobs picking up loot
+         if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+-            LocalDate localdate = LocalDate.now();
+-            int i = localdate.get(ChronoField.DAY_OF_MONTH);
+-            int j = localdate.get(ChronoField.MONTH_OF_YEAR);
+-
+-            if (j == 10 && i == 31 && randomsource.nextFloat() < 0.25F) {
++            if (net.minecraft.world.entity.ambient.Bat.isHalloweenSeason(world.getMinecraftWorld()) && this.random.nextFloat() < this.level().purpurConfig.chanceHeadHalloweenOnEntity) { // Purpur
+                 this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(randomsource.nextFloat() < 0.1F ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
+                 this.armorDropChances[EquipmentSlot.HEAD.getIndex()] = 0.0F;
+             }
+@@ -209,7 +185,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
          double d2 = target.getZ() - this.getZ();
          double d3 = Math.sqrt(d0 * d0 + d2 * d2);
  
@@ -8377,7 +8406,7 @@ index 3b5cf6ffb74d11bea5eb21bd66d679734ff5000c..e64a2a551a2190cf2edff3630f662f4a
          // CraftBukkit start
          org.bukkit.event.entity.EntityShootBowEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callEntityShootBowEvent(this, this.getMainHandItem(), entityarrow.getPickupItem(), entityarrow, net.minecraft.world.InteractionHand.MAIN_HAND, 0.8F, true); // Paper
          if (event.isCancelled()) {
-@@ -239,7 +219,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+@@ -239,7 +215,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
          super.readAdditionalSaveData(nbt);
          this.reassessWeaponGoal();
          // Paper start - shouldBurnInDay API
@@ -8386,7 +8415,7 @@ index 3b5cf6ffb74d11bea5eb21bd66d679734ff5000c..e64a2a551a2190cf2edff3630f662f4a
              this.shouldBurnInDay = nbt.getBoolean("Paper.ShouldBurnInDay");
          }
          // Paper end - shouldBurnInDay API
-@@ -249,7 +229,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+@@ -249,7 +225,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
      @Override
      public void addAdditionalSaveData(CompoundTag nbt) {
          super.addAdditionalSaveData(nbt);
@@ -11434,7 +11463,7 @@ index 0d447c8a141a7d7fcaf9218571bf0513dd28269e..fdc57a81cbd7a02a3ade0da8ff84d7df
          this.updateActivity();
      }
 diff --git a/src/main/java/net/minecraft/world/entity/monster/Zombie.java b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
-index 2b43337ac63d051718a2074fcc46e128a1d65129..77cc311e2b9aea6cb4d014fa93aac2d362bc8cd3 100644
+index 2b43337ac63d051718a2074fcc46e128a1d65129..479232d8dfaabdb3da5b825969d377aa437ea7d3 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/Zombie.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/Zombie.java
 @@ -97,22 +97,70 @@ public class Zombie extends Monster {
@@ -11625,7 +11654,20 @@ index 2b43337ac63d051718a2074fcc46e128a1d65129..77cc311e2b9aea6cb4d014fa93aac2d3
                      }
                  }
              }
-@@ -585,7 +623,7 @@ public class Zombie extends Monster {
+@@ -549,11 +587,7 @@ public class Zombie extends Monster {
+         }
+ 
+         if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+-            LocalDate localdate = LocalDate.now();
+-            int i = localdate.get(ChronoField.DAY_OF_MONTH);
+-            int j = localdate.get(ChronoField.MONTH_OF_YEAR);
+-
+-            if (j == 10 && i == 31 && randomsource.nextFloat() < 0.25F) {
++            if (net.minecraft.world.entity.ambient.Bat.isHalloweenSeason(world.getMinecraftWorld()) && this.random.nextFloat() < this.level().purpurConfig.chanceHeadHalloweenOnEntity) { // Purpur
+                 this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(randomsource.nextFloat() < 0.1F ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
+                 this.armorDropChances[EquipmentSlot.HEAD.getIndex()] = 0.0F;
+             }
+@@ -585,7 +619,7 @@ public class Zombie extends Monster {
      }
  
      protected void randomizeReinforcementsChance() {
@@ -18805,10 +18847,10 @@ index 0000000000000000000000000000000000000000..3700904b82d3116c1336b86907ce1c2c
 +}
 diff --git a/src/main/java/org/purpurmc/purpur/PurpurWorldConfig.java b/src/main/java/org/purpurmc/purpur/PurpurWorldConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..92b6f335157da49583b4ecac54de6e51dd032867
+index 0000000000000000000000000000000000000000..d2021197a100279f2e9bcad4cadd715ac0bb9d4a
 --- /dev/null
 +++ b/src/main/java/org/purpurmc/purpur/PurpurWorldConfig.java
-@@ -0,0 +1,3409 @@
+@@ -0,0 +1,3416 @@
 +package org.purpurmc.purpur;
 +
 +import net.minecraft.core.registries.BuiltInRegistries;
@@ -20672,6 +20714,13 @@ index 0000000000000000000000000000000000000000..92b6f335157da49583b4ecac54de6e51
 +        guardianScale = Mth.clamp(getDouble("mobs.guardian.attributes.scale", guardianScale), 0.0625D, 16.0D);
 +        guardianTakeDamageFromWater = getBoolean("mobs.guardian.takes-damage-from-water", guardianTakeDamageFromWater);
 +        guardianAlwaysDropExp = getBoolean("mobs.guardian.always-drop-exp", guardianAlwaysDropExp);
++    }
++
++    public boolean forceHalloweenSeason = false;
++    public float chanceHeadHalloweenOnEntity = 0.25F;
++    private void halloweenSetting() {
++        forceHalloweenSeason = getBoolean("gameplay-mechanics.halloween.force", forceHalloweenSeason);
++        chanceHeadHalloweenOnEntity = (float) getDouble("gameplay-mechanics.halloween.head-chance", chanceHeadHalloweenOnEntity);
 +    }
 +
 +    public boolean hoglinRidable = false;
