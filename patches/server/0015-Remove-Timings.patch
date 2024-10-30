@@ -1838,7 +1838,7 @@ index 579c2e69d8f6ce8398eb1297d1d1ead98c9068a5..00000000000000000000000000000000
 -
 -}
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 530c5d656b6b362d0df85a897d7e8d0497250680..7fd2a463e9208635bd2d9f0b1a4291d60c5dedf2 100644
+index 92a8d0a44a3e8b955807fc6b94564b6660bd94ad..dae16e2c3cc0f154dbe3a62e3050548fb649c3c2 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -34,7 +34,6 @@ import net.minecraft.world.entity.projectile.FireworkRocketEntity;
@@ -1849,7 +1849,7 @@ index 530c5d656b6b362d0df85a897d7e8d0497250680..7fd2a463e9208635bd2d9f0b1a4291d6
  import net.minecraft.world.entity.schedule.Activity;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.phys.AABB;
-@@ -182,7 +181,6 @@ public class ActivationRange
+@@ -181,7 +180,6 @@ public class ActivationRange
       */
      public static void activateEntities(Level world)
      {

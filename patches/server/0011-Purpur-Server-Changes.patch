@@ -24824,10 +24824,10 @@ index 0000000000000000000000000000000000000000..129acb8ad139decc6b1c023cb10bc32d
 +    // Paper end - lifecycle events
 +}
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 456f64fcae7a12ca141d8061f69797e58efa1899..530c5d656b6b362d0df85a897d7e8d0497250680 100644
+index e469b2782932275caa4bb760eefff82916c47d3a..92a8d0a44a3e8b955807fc6b94564b6660bd94ad 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
-@@ -216,6 +216,8 @@ public class ActivationRange
+@@ -215,6 +215,8 @@ public class ActivationRange
                  continue;
              }
  
