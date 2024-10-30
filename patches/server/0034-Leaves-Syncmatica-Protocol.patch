@@ -9,7 +9,7 @@ Original project: https://github.com/LeavesMC/Leaves
 This patch is Powered by Syncmatica (https://github.com/End-Tech/syncmatica)
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 041d2286ab74d522f4f49a1188dfb37a6aeb595d..efc97f8722993e1c1899422465a6b8b12ebe5fce 100644
+index 86a7bcc71e419a22ed00dfaf440e8658888b4218..7bd773b9d3015565f44105a8486f6a85c979fcbd 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -319,6 +319,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
@@ -1366,10 +1366,10 @@ index 0000000000000000000000000000000000000000..cb5dffe81c4f0becad0ae2fbf7e9143f
 +}
 diff --git a/src/main/java/org/leavesmc/leaves/protocol/syncmatica/SyncmaticaProtocol.java b/src/main/java/org/leavesmc/leaves/protocol/syncmatica/SyncmaticaProtocol.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..d2625b1ca6fc207dfb8c282d3dc0baa2701479c9
+index 0000000000000000000000000000000000000000..4ee092cea91cb50d0f9269d4dc22117f0fd0a60a
 --- /dev/null
 +++ b/src/main/java/org/leavesmc/leaves/protocol/syncmatica/SyncmaticaProtocol.java
-@@ -0,0 +1,122 @@
+@@ -0,0 +1,126 @@
 +package org.leavesmc.leaves.protocol.syncmatica;
 +
 +import org.jetbrains.annotations.NotNull;
@@ -1389,6 +1389,7 @@ index 0000000000000000000000000000000000000000..d2625b1ca6fc207dfb8c282d3dc0baa2
 +    public static final String PROTOCOL_ID = "syncmatica";
 +    public static final String PROTOCOL_VERSION = "leaves-syncmatica-1.1.0";
 +
++    private static boolean loaded = false;
 +    private static final File litematicFolder = new File("." + File.separator + "syncmatics");
 +    private static final PlayerIdentifierProvider playerIdentifierProvider = new PlayerIdentifierProvider();
 +    private static final CommunicationManager communicationManager = new CommunicationManager();
@@ -1421,8 +1422,11 @@ index 0000000000000000000000000000000000000000..d2625b1ca6fc207dfb8c282d3dc0baa2
 +    }
 +
 +    public static void init() {
-+        litematicFolder.mkdirs();
-+        syncmaticManager.startup();
++        if (!loaded) {
++            litematicFolder.mkdirs();
++            syncmaticManager.startup();
++            loaded = true;
++        }
 +    }
 +
 +    @NotNull
