@@ -1787,7 +1787,7 @@ index 4e4f14ba35a1a5944c605dfd1784047d43e559ce..fac4130957d35609ea9d281866f95f36
                      }
                  } catch (AuthenticationUnavailableException authenticationunavailableexception) {
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 4ca84c81612d864be5dc90ab7a0feb9f1660731a..b2c3ef601df19c00d3a8a24c4be281ccc1fdb007 100644
+index 2ce40c153a3b08c5c5f1d7743d0135237e4a4d36..eb7c945c5a7fb91a72ac5c980a03e6dc3fbff091 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -494,6 +494,7 @@ public abstract class PlayerList {
@@ -14538,10 +14538,10 @@ index a28385bbc885f2103093a80066c89f09b650484a..f00e11d9be2f95aecaecd7f69dbad9ad
 +    // Purpur end
  }
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index 2c992661d4864cf826464f840c9d13c09b26f86f..1da91797ddbaf2cee7124b3dbd0970acb1a23073 100644
+index f636037bb443e35872fcd50483e88b3597b6ad67..7dd99267ad2071b7537c46de3d1dc234384f593a 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-@@ -251,7 +251,7 @@ public final class NaturalSpawner {
+@@ -250,7 +250,7 @@ public final class NaturalSpawner {
                              blockposition_mutableblockposition.set(l, i, i1);
                              double d0 = (double) l + 0.5D;
                              double d1 = (double) i1 + 0.5D;
@@ -24824,7 +24824,7 @@ index 0000000000000000000000000000000000000000..129acb8ad139decc6b1c023cb10bc32d
 +    // Paper end - lifecycle events
 +}
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index e469b2782932275caa4bb760eefff82916c47d3a..92a8d0a44a3e8b955807fc6b94564b6660bd94ad 100644
+index 17fe0c5661671a5d7ba7627c41f8e3f6662878b7..5e00b8bfd99680b6a6d48d85e272f62bb61811eb 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -215,6 +215,8 @@ public class ActivationRange

@@ -22,7 +22,7 @@ index 9c6f5b55b1f1376fa75e216cd366ee47c79fafc4..67d94b649148b3165f09d75d8c9db10d
      static RandomSource createThreadSafe() {
          return new ThreadSafeLegacyRandomSource(RandomSupport.generateUniqueSeed());
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 83fcdd4d090bfc8801a640b2a5645313aa946343..41dd7129fcb1b4aa06f3d51b3fb809d6ff0eb370 100644
+index 2eb42ce9d1eb8852e563b707a47bad1d5e7d8f2d..a40aec3a8adf39a94d62b776e845cfc193084bbb 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -128,6 +128,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
@@ -34,10 +34,10 @@ index 83fcdd4d090bfc8801a640b2a5645313aa946343..41dd7129fcb1b4aa06f3d51b3fb809d6
      @Deprecated
      private final RandomSource threadSafeRandom = RandomSource.createThreadSafe();
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index e33b39d369386d677cc15247846790b498e37a82..cf715114f0ebba449d7bd663445baec699d97537 100644
+index 88d68784dd1dcf9e67fd596cab4e83ebeada8e45..4d009e649fedd4fc2fbbd4856cad33cdd38ff1eb 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-@@ -405,10 +405,12 @@ public final class NaturalSpawner {
+@@ -404,10 +404,12 @@ public final class NaturalSpawner {
  
      private static BlockPos getRandomPosWithin(Level world, LevelChunk chunk) {
          ChunkPos chunkcoordintpair = chunk.getPos();

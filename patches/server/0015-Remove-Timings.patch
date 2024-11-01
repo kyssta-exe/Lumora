@@ -1325,7 +1325,7 @@ index d2cbf34389a1b56c442c6ce08f55f1174a9d9f0b..70b247cd559cb9814fbf8e3ab7839a40
  
          }
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index b2c3ef601df19c00d3a8a24c4be281ccc1fdb007..90d8d4e2b46ae8a29557dfedbeba1cfb9117dcfe 100644
+index eb7c945c5a7fb91a72ac5c980a03e6dc3fbff091..2cd697a292d27a8905a6c1010f6f662ffc00d7ae 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -1,6 +1,5 @@
@@ -1538,7 +1538,7 @@ index f00e11d9be2f95aecaecd7f69dbad9ad70193ab4..79360f7494c5f83b49d054ba65495d8d
      }
  
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index 1da91797ddbaf2cee7124b3dbd0970acb1a23073..e33b39d369386d677cc15247846790b498e37a82 100644
+index 7dd99267ad2071b7537c46de3d1dc234384f593a..88d68784dd1dcf9e67fd596cab4e83ebeada8e45 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 @@ -127,7 +127,6 @@ public final class NaturalSpawner {
@@ -1549,7 +1549,7 @@ index 1da91797ddbaf2cee7124b3dbd0970acb1a23073..e33b39d369386d677cc15247846790b4
          MobCategory[] aenumcreaturetype = NaturalSpawner.SPAWNING_CATEGORIES;
          int i = aenumcreaturetype.length;
  
-@@ -179,8 +178,6 @@ public final class NaturalSpawner {
+@@ -178,8 +177,6 @@ public final class NaturalSpawner {
                  // Paper end - Optional per player mob spawns
              }
          }
@@ -1838,7 +1838,7 @@ index 579c2e69d8f6ce8398eb1297d1d1ead98c9068a5..00000000000000000000000000000000
 -
 -}
 diff --git a/src/main/java/org/spigotmc/ActivationRange.java b/src/main/java/org/spigotmc/ActivationRange.java
-index 92a8d0a44a3e8b955807fc6b94564b6660bd94ad..dae16e2c3cc0f154dbe3a62e3050548fb649c3c2 100644
+index 5e00b8bfd99680b6a6d48d85e272f62bb61811eb..ebcecc78c475ba9436b894be971c3771ffc80caf 100644
 --- a/src/main/java/org/spigotmc/ActivationRange.java
 +++ b/src/main/java/org/spigotmc/ActivationRange.java
 @@ -34,7 +34,6 @@ import net.minecraft.world.entity.projectile.FireworkRocketEntity;

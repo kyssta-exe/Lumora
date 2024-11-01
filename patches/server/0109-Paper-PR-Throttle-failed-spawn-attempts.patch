@@ -51,7 +51,7 @@ index c867796f625813797f167610ad443c4be5a7561e..04d13abd8d98f4e72732afbdbb9719d8
              public record DespawnRangePair(@Required DespawnRange hard, @Required DespawnRange soft) {
                  public static DespawnRangePair createDefault() {
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index 7e1a007ed2f2c625f01fea210c9935cb02d119e0..8e9ada03e5134d2f776bbbf872087121f649c19d 100644
+index 95a000dbf1a05cfd8182f15c0e0bbf7023578974..455c7e66fc1ff28c4f720a01ff11aa408446b42e 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 @@ -138,8 +138,14 @@ public final class NaturalSpawner {
@@ -70,20 +70,22 @@ index 7e1a007ed2f2c625f01fea210c9935cb02d119e0..8e9ada03e5134d2f776bbbf872087121
                  limit = world.getWorld().getSpawnLimit(spawnCategory);
              }
  
-@@ -176,6 +182,13 @@ public final class NaturalSpawner {
-                     difference, world.paperConfig().entities.spawning.perPlayerMobSpawns ? world.getChunkSource().chunkMap::updatePlayerMobTypeMap : null);
-                 info.mobCategoryCounts.mergeInt(enumcreaturetype, spawnCount, Integer::sum);
-                 // Paper end - Optional per player mob spawns
+@@ -172,8 +178,13 @@ public final class NaturalSpawner {
+ 
+                 Objects.requireNonNull(info);
+                 // Paper start - Optional per player mob spawns
+-                NaturalSpawner.spawnCategoryForChunk(enumcreaturetype, world, chunk, spawnercreature_c, info::afterSpawn,
+-                    difference, world.paperConfig().entities.spawning.perPlayerMobSpawns ? world.getChunkSource().chunkMap::updatePlayerMobTypeMap : null);
 +                // Paper start - throttle failed spawn attempts
-+                if (spawnCount == 0) {
++                if (NaturalSpawner.spawnCategoryForChunk(enumcreaturetype, world, chunk, spawnercreature_c, info::afterSpawn, difference, world.paperConfig().entities.spawning.perPlayerMobSpawns ? world.getChunkSource().chunkMap::updatePlayerMobTypeMap : null) == 0) {
 +                    chunk.failedSpawnAttempts[enumcreaturetype.ordinal()]++;
 +                } else {
 +                    chunk.failedSpawnAttempts[enumcreaturetype.ordinal()] = 0;
 +                }
 +                // Paper end - throttle failed spawn attempts
+                 // Paper end - Optional per player mob spawns
              }
          }
-     }
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java b/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java
 index 5bb8fe022f580a626a99324f53515890a99b798d..5cee82d3d17739858e47f24ec5340233f09d0713 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkAccess.java

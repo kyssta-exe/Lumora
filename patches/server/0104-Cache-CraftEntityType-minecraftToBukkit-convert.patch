@@ -47,10 +47,10 @@ index 967af8771ff8564c715d89f4b4b69b16c25add59..e7fafb3f919a7275212896c65a6eff68
                          );
                          if (!event.callEvent()) {
 diff --git a/src/main/java/net/minecraft/world/level/NaturalSpawner.java b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-index cf715114f0ebba449d7bd663445baec699d97537..7e1a007ed2f2c625f01fea210c9935cb02d119e0 100644
+index 4d009e649fedd4fc2fbbd4856cad33cdd38ff1eb..95a000dbf1a05cfd8182f15c0e0bbf7023578974 100644
 --- a/src/main/java/net/minecraft/world/level/NaturalSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/NaturalSpawner.java
-@@ -344,7 +344,7 @@ public final class NaturalSpawner {
+@@ -343,7 +343,7 @@ public final class NaturalSpawner {
          // Paper start - PreCreatureSpawnEvent
          com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent event = new com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent(
              io.papermc.paper.util.MCUtil.toLocation(world, pos),
