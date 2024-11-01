@@ -27,7 +27,7 @@ index 63b827d91a935d6b6f04266eea682da97af79cf2..02d7180e5b932dd8c7e8867f1334cbc4
      }
  
 diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
-index 4d2b6e69ed98aca98ffc50fefc6e535c1afb759d..fe7e9e194634f6bfff2aab6e496a35fb85554e5a 100644
+index 4d2b6e69ed98aca98ffc50fefc6e535c1afb759d..299a26d731da4b56887b427cf3551d84f0e231e6 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
 @@ -85,6 +85,38 @@ public class AcquirePoi {
@@ -40,7 +40,7 @@ index 4d2b6e69ed98aca98ffc50fefc6e535c1afb759d..fe7e9e194634f6bfff2aab6e496a35fb
 +                                        Path possiblePath = findPathToPois(entity, set);
 +
 +                                        // wait on the path to be processed
-+                                        org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(entity, possiblePath, path -> {
++                                        org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(possiblePath, path -> {
 +                                            // read canReach check
 +                                            if (path == null || !path.canReach()) {
 +                                                for (Pair<Holder<PoiType>, BlockPos> pair : set) {
@@ -203,7 +203,7 @@ index 2a7a26ca447cc78f24e61a2bf557411c31eb16b2..4010cb7ad8897995c8b850f9279aad2a
      private boolean tryComputePath(Mob entity, WalkTarget walkTarget, long time) {
          BlockPos blockPos = walkTarget.getTarget().currentBlockPosition();
 diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/SetClosestHomeAsWalkTarget.java b/src/main/java/net/minecraft/world/entity/ai/behavior/SetClosestHomeAsWalkTarget.java
-index 6802e0c4d331c7125114dd86409f6a110465ab82..84a36ef3e98af24a24a25b83826f44bb7f746bcc 100644
+index 6802e0c4d331c7125114dd86409f6a110465ab82..601f43615cb55142125e21411f651318ee760e9f 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/behavior/SetClosestHomeAsWalkTarget.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/behavior/SetClosestHomeAsWalkTarget.java
 @@ -60,6 +60,26 @@ public class SetClosestHomeAsWalkTarget {
@@ -216,7 +216,7 @@ index 6802e0c4d331c7125114dd86409f6a110465ab82..84a36ef3e98af24a24a25b83826f44bb
 +                                            Path possiblePath = AcquirePoi.findPathToPois(entity, set);
 +
 +                                            // wait on the path to be processed
-+                                            org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(entity, possiblePath, path -> {
++                                            org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(possiblePath, path -> {
 +                                                if (path == null || !path.canReach() || mutableInt.getValue() < 5) { // read canReach check
 +                                                    long2LongMap.long2LongEntrySet().removeIf(entry -> entry.getLongValue() < mutableLong.getValue());
 +                                                    return;
@@ -356,7 +356,7 @@ index 62634bedd97c5be9ecce24ab0cff205715a68da8..5266cee05a00fefba98a10eb91bb477f
      }
  
 diff --git a/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java b/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java
-index aea01c46bf59ed811356180436fc0789e354d981..8ba2c3855b69ad9ca717675e70df1055cb4a677a 100644
+index aea01c46bf59ed811356180436fc0789e354d981..542c63c4304d97772988dea13edbcd31c14cb955 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java
 @@ -152,6 +152,10 @@ public abstract class PathNavigation {
@@ -379,7 +379,7 @@ index aea01c46bf59ed811356180436fc0789e354d981..8ba2c3855b69ad9ca717675e70df1055
 +                // assign early a target position. most calls will only have 1 position
 +                if (!positions.isEmpty()) this.targetPos = positions.iterator().next();
 +
-+                org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(mob, path, processedPath -> {
++                org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(path, processedPath -> {
 +                    // check that processing didn't take so long that we calculated a new path
 +                    if (processedPath != this.path) return;
 +
@@ -468,7 +468,7 @@ index ce7398a617abe6e800c1e014b3ac5c970eb15c8a..dbf43209417d8453ff39839392eba45b
      }
  
 diff --git a/src/main/java/net/minecraft/world/entity/ai/sensing/NearestBedSensor.java b/src/main/java/net/minecraft/world/entity/ai/sensing/NearestBedSensor.java
-index 9104d7010bda6f9f73b478c11490ef9c53f76da2..7abf4ecd1153be597efaa12ec330d20e4d49039e 100644
+index 9104d7010bda6f9f73b478c11490ef9c53f76da2..fb12b8581ebaccc12dc336cc73a847d75b06c421 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/sensing/NearestBedSensor.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/sensing/NearestBedSensor.java
 @@ -57,6 +57,26 @@ public class NearestBedSensor extends Sensor<Mob> {
@@ -478,7 +478,7 @@ index 9104d7010bda6f9f73b478c11490ef9c53f76da2..7abf4ecd1153be597efaa12ec330d20e
 +            // Kaiiju start - await on async path processing
 +            if (org.dreeam.leaf.config.modules.async.AsyncPathfinding.enabled) {
 +                Path possiblePath = AcquirePoi.findPathToPois(entity, new java.util.HashSet<>(poiposes));
-+                org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(entity, possiblePath, path -> {
++                org.dreeam.leaf.async.path.AsyncPathProcessor.awaitProcessing(possiblePath, path -> {
 +                    // read canReach check
 +                    if ((path == null || !path.canReach()) && this.triedCount < 5) {
 +                        this.batchCache.long2LongEntrySet().removeIf(entry -> entry.getLongValue() < this.lastUpdate);
@@ -802,10 +802,10 @@ index 6308822f819d7cb84c8070c8a7eec1a3f822114b..e49851557f991ca1fc2f78abfb819609
      public SwimNodeEvaluator(boolean canJumpOutOfWater) {
 diff --git a/src/main/java/org/dreeam/leaf/async/path/AsyncPath.java b/src/main/java/org/dreeam/leaf/async/path/AsyncPath.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..2f5aff1f0e2aca0a8bfeab27c4ab027ffc21055d
+index 0000000000000000000000000000000000000000..ba44944fd043e3982477bfee2c48a0e765d62db0
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/async/path/AsyncPath.java
-@@ -0,0 +1,287 @@
+@@ -0,0 +1,295 @@
 +package org.dreeam.leaf.async.path;
 +
 +import net.minecraft.core.BlockPos;
@@ -829,7 +829,7 @@ index 0000000000000000000000000000000000000000..2f5aff1f0e2aca0a8bfeab27c4ab027f
 +    /**
 +     * marks whether this async path has been processed
 +     */
-+    private volatile boolean processed = false;
++    private volatile PathProcessState processState = PathProcessState.WAITING;
 +
 +    /**
 +     * runnables waiting for this to be processed
@@ -886,14 +886,14 @@ index 0000000000000000000000000000000000000000..2f5aff1f0e2aca0a8bfeab27c4ab027f
 +
 +    @Override
 +    public boolean isProcessed() {
-+        return this.processed;
++        return this.processState == PathProcessState.COMPLETED;
 +    }
 +
 +    /**
 +     * returns the future representing the processing state of this path
 +     */
 +    public synchronized void postProcessing(@NotNull Runnable runnable) {
-+        if (this.processed) {
++        if (isProcessed()) {
 +            runnable.run();
 +        } else {
 +            this.postProcessing.add(runnable);
@@ -918,9 +918,12 @@ index 0000000000000000000000000000000000000000..2f5aff1f0e2aca0a8bfeab27c4ab027f
 +     * starts processing this path
 +     */
 +    public synchronized void process() {
-+        if (this.processed) {
++        if (this.processState == PathProcessState.COMPLETED ||
++                this.processState == PathProcessState.PROCESSING) {
 +            return;
 +        }
++
++        processState = PathProcessState.PROCESSING;
 +
 +        final Path bestPath = this.pathSupplier.get();
 +
@@ -929,18 +932,19 @@ index 0000000000000000000000000000000000000000..2f5aff1f0e2aca0a8bfeab27c4ab027f
 +        this.distToTarget = bestPath.getDistToTarget();
 +        this.canReach = bestPath.canReach();
 +
-+        this.processed = true;
++        processState = PathProcessState.COMPLETED;
 +
 +        for (Runnable runnable : this.postProcessing) {
 +            runnable.run();
-+        }
++        } // Run tasks after processing
 +    }
 +
 +    /**
 +     * if this path is accessed while it hasn't processed, just process it in-place
 +     */
 +    private void checkProcessed() {
-+        if (!this.processed) {
++        if (this.processState == PathProcessState.WAITING ||
++                this.processState == PathProcessState.PROCESSING) { // Block if we are on processing
 +            this.process();
 +        }
 +    }
@@ -976,7 +980,7 @@ index 0000000000000000000000000000000000000000..2f5aff1f0e2aca0a8bfeab27c4ab027f
 +
 +    @Override
 +    public boolean isDone() {
-+        return this.isProcessed() && super.isDone();
++        return this.processState == PathProcessState.COMPLETED && super.isDone();
 +    }
 +
 +    @Override
@@ -1092,19 +1096,23 @@ index 0000000000000000000000000000000000000000..2f5aff1f0e2aca0a8bfeab27c4ab027f
 +
 +        return super.hasNext();
 +    }
++
++    public PathProcessState getProcessState() {
++        return processState;
++    }
 +}
 diff --git a/src/main/java/org/dreeam/leaf/async/path/AsyncPathProcessor.java b/src/main/java/org/dreeam/leaf/async/path/AsyncPathProcessor.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..3eb86fc2e0ea28be18e23dd2c060e043f1fede93
+index 0000000000000000000000000000000000000000..192edd0fdc8e2fd7fa11bef416544810c94f292b
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/async/path/AsyncPathProcessor.java
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,51 @@
 +package org.dreeam.leaf.async.path;
 +
 +import com.google.common.util.concurrent.ThreadFactoryBuilder;
 +
++import net.minecraft.server.MinecraftServer;
 +import net.minecraft.world.level.pathfinder.Path;
-+import net.minecraft.world.entity.Entity;
 +
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
@@ -1137,14 +1145,13 @@ index 0000000000000000000000000000000000000000..3eb86fc2e0ea28be18e23dd2c060e043
 +     * the consumer will be immediately invoked if the path is already processed
 +     * the consumer will always be called on the main thread
 +     *
-+     * @param entity          affected entity
 +     * @param path            a path to wait on
 +     * @param afterProcessing a consumer to be called
 +     */
-+    public static void awaitProcessing(Entity entity, @Nullable Path path, Consumer<@Nullable Path> afterProcessing) {
++    public static void awaitProcessing(@Nullable Path path, Consumer<@Nullable Path> afterProcessing) {
 +        if (path != null && !path.isProcessed() && path instanceof AsyncPath asyncPath) {
 +            asyncPath.postProcessing(() ->
-+                    entity.getBukkitEntity().taskScheduler.schedule(nmsEntity -> afterProcessing.accept(path), null, 1)
++                    MinecraftServer.getServer().scheduleOnMain(() -> afterProcessing.accept(path))
 +            );
 +        } else {
 +            afterProcessing.accept(path);
@@ -1153,12 +1160,13 @@ index 0000000000000000000000000000000000000000..3eb86fc2e0ea28be18e23dd2c060e043
 +}
 diff --git a/src/main/java/org/dreeam/leaf/async/path/NodeEvaluatorCache.java b/src/main/java/org/dreeam/leaf/async/path/NodeEvaluatorCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..7a28c0ef27efbab28274c007068b5c82073a1987
+index 0000000000000000000000000000000000000000..b147a9675a45bd1306e4cf2a4f155025ce1ae1bf
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/async/path/NodeEvaluatorCache.java
 @@ -0,0 +1,45 @@
 +package org.dreeam.leaf.async.path;
 +
++import ca.spottedleaf.concurrentutil.collection.MultiThreadedQueue;
 +import net.minecraft.world.level.pathfinder.NodeEvaluator;
 +
 +import org.apache.commons.lang.Validate;
@@ -1167,14 +1175,13 @@ index 0000000000000000000000000000000000000000..7a28c0ef27efbab28274c007068b5c82
 +import java.util.Map;
 +import java.util.Queue;
 +import java.util.concurrent.ConcurrentHashMap;
-+import java.util.concurrent.ConcurrentLinkedQueue;
 +
 +public class NodeEvaluatorCache {
-+    private static final Map<NodeEvaluatorFeatures, ConcurrentLinkedQueue<NodeEvaluator>> threadLocalNodeEvaluators = new ConcurrentHashMap<>();
++    private static final Map<NodeEvaluatorFeatures, MultiThreadedQueue<NodeEvaluator>> threadLocalNodeEvaluators = new ConcurrentHashMap<>();
 +    private static final Map<NodeEvaluator, NodeEvaluatorGenerator> nodeEvaluatorToGenerator = new ConcurrentHashMap<>();
 +
 +    private static @NotNull Queue<NodeEvaluator> getQueueForFeatures(@NotNull NodeEvaluatorFeatures nodeEvaluatorFeatures) {
-+        return threadLocalNodeEvaluators.computeIfAbsent(nodeEvaluatorFeatures, key -> new ConcurrentLinkedQueue<>());
++        return threadLocalNodeEvaluators.computeIfAbsent(nodeEvaluatorFeatures, key -> new MultiThreadedQueue<>());
 +    }
 +
 +    public static @NotNull NodeEvaluator takeNodeEvaluator(@NotNull NodeEvaluatorGenerator generator, @NotNull NodeEvaluator localNodeEvaluator) {
@@ -1271,6 +1278,19 @@ index 0000000000000000000000000000000000000000..c0527323c42acf7e4728237e268f075e
 +        if (nodeEvaluator instanceof AmphibiousNodeEvaluator) return AMPHIBIOUS;
 +        return WALK;
 +    }
++}
+diff --git a/src/main/java/org/dreeam/leaf/async/path/PathProcessState.java b/src/main/java/org/dreeam/leaf/async/path/PathProcessState.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..73f30b733fb93f5cfbf9e14800b055b9053f6383
+--- /dev/null
++++ b/src/main/java/org/dreeam/leaf/async/path/PathProcessState.java
+@@ -0,0 +1,7 @@
++package org.dreeam.leaf.async.path;
++
++public enum PathProcessState {
++    WAITING,
++    PROCESSING,
++    COMPLETED,
 +}
 diff --git a/src/main/java/org/dreeam/leaf/config/modules/async/AsyncPathfinding.java b/src/main/java/org/dreeam/leaf/config/modules/async/AsyncPathfinding.java
 new file mode 100644
