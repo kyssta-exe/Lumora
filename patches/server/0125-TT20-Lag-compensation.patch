@@ -63,7 +63,7 @@ index 9dcdb2f4001115db0c26fdbf86531dbe6098485d..53a28a4026c50a66e53241ffe660b4d7
      @Override
 diff --git a/src/main/java/org/dreeam/leaf/config/modules/misc/LagCompensation.java b/src/main/java/org/dreeam/leaf/config/modules/misc/LagCompensation.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..caeb9db146ea24d99d953d99d8e4ba725dcb2b3e
+index 0000000000000000000000000000000000000000..d90ab4cb8c69318f8bf77af12e2840fb5d519931
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/config/modules/misc/LagCompensation.java
 @@ -0,0 +1,26 @@
@@ -75,7 +75,7 @@ index 0000000000000000000000000000000000000000..caeb9db146ea24d99d953d99d8e4ba72
 +public class LagCompensation extends ConfigModules {
 +
 +    public String getBasePath() {
-+        return EnumConfigCategory.PERF.getBaseKeyName() + ".lag-compensation";
++        return EnumConfigCategory.MISC.getBaseKeyName() + ".lag-compensation";
 +    }
 +
 +    public static boolean enabled = false;
