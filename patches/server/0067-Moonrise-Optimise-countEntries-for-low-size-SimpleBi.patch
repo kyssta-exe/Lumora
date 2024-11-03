@@ -15,16 +15,16 @@ number of palette entries is low. This eliminates the need for
 the map lookup on each entry.
 
 diff --git a/src/main/java/net/minecraft/util/SimpleBitStorage.java b/src/main/java/net/minecraft/util/SimpleBitStorage.java
-index 4ce9eeaf454642f92ed1ba735daf2fbbbc67ac32..8f452bb0e997ea1565112d9a9aca6b6919e66ffa 100644
+index d11fad2a92fc39e9918b0000e737fcbfbe56a50c..5f613be5424a4955ec6cba2a1d4db110bd421849 100644
 --- a/src/main/java/net/minecraft/util/SimpleBitStorage.java
 +++ b/src/main/java/net/minecraft/util/SimpleBitStorage.java
-@@ -407,37 +407,66 @@ public class SimpleBitStorage implements BitStorage {
+@@ -407,39 +407,66 @@ public class SimpleBitStorage implements BitStorage {
      }
  
      // Paper start - block counting
 +    // Moonrise start - Optimise countEntries for low size SimpleBitStorage
      @Override
-     public final it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<it.unimi.dsi.fastutil.shorts.ShortArrayList> moonrise$countEntries() {
+     public final it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<it.unimi.dsi.fastutil.shorts.ShortArrayList> moonrise$countEntries() { // Moonrise - block counting optimisations
          final int valuesPerLong = this.valuesPerLong;
          final int bits = this.bits;
 -        final long mask = this.mask;
@@ -32,7 +32,7 @@ index 4ce9eeaf454642f92ed1ba735daf2fbbbc67ac32..8f452bb0e997ea1565112d9a9aca6b69
          final int size = this.size;
  
 -        // we may be backed by global palette, so limit bits for init capacity
--        final it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<it.unimi.dsi.fastutil.shorts.ShortArrayList> ret = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<>(
+-        final it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<it.unimi.dsi.fastutil.shorts.ShortArrayList> ret = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<>( // Moonrise - block counting optimisations
 -            1 << Math.min(6, bits)
 -        );
 -
@@ -71,8 +71,10 @@ index 4ce9eeaf454642f92ed1ba735daf2fbbbc67ac32..8f452bb0e997ea1565112d9a9aca6b69
 +            }
  
 -                ret.computeIfAbsent(paletteIdx, (final int key) -> {
+-                    // Moonrise start - block counting optimisations
 -                    return new it.unimi.dsi.fastutil.shorts.ShortArrayList();
 -                }).add((short) index);
+-                // Moonrise end - block counting optimisations
 +            return ret;
 +        } else {
 +            final it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<it.unimi.dsi.fastutil.shorts.ShortArrayList> ret = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<>(
