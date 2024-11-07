@@ -19,7 +19,7 @@ index 11b7f15755dde766140c29bedca456c80d53293f..749d00449ac3f3c79bfc73a5517ea3a0
          this.id = id;
      }
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-index 3fa04bad6f5263c626c22ef0a795947391e1e710..411bc27324c34e4cad1849512a4531214d7fe9d2 100644
+index 6676be8304e9415099ed423d3315180cafebd928..30b56382e9574004e344c1c8289d7dcbb177386b 100644
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 +++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 @@ -48,6 +48,12 @@ class PaperEventManager {
@@ -27,7 +27,7 @@ index 3fa04bad6f5263c626c22ef0a795947391e1e710..411bc27324c34e4cad1849512a453121
              }
              // Leaf end - Multithreaded tracker
 +            // Leaf start - Async locator
-+            if (org.dreeam.leaf.config.modules.async.AsyncLocator.enabled && Thread.currentThread() instanceof org.dreeam.leaf.async.locate.AsyncLocator.AsyncLocatorThread) {
++            if (org.dreeam.leaf.config.modules.async.AsyncLocator.enabled) {
 +                net.minecraft.server.MinecraftServer.getServer().scheduleOnMain(event::callEvent);
 +                return;
 +            }
