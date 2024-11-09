@@ -61,11 +61,11 @@ index f22d22ebcedcc9c20225677844c86a1ad27c4211..92c2c37363fe31147f94f645c49e54ac
      }
  
 diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-index cd45bfb51294e3510792320e2a159f1c6d554ce1..727b9c93a903d29d67548d34332eeedbdaac1f89 100644
+index 3b197331f51b12b55a40f2abb6ce99ef0fb65f17..bf9c228a19fe34221686f1d002feda7f40e8272c 100644
 --- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
 +++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-@@ -65,6 +65,48 @@ public abstract class FlowingFluid extends Fluid {
-     // Gale end - Airplane - improve fluid direction caching - use our own cache
+@@ -55,6 +55,48 @@ public abstract class FlowingFluid extends Fluid {
+     });
      private final Map<FluidState, VoxelShape> shapes = Maps.newIdentityHashMap();
  
 +    // Moonrise start - fluid method optimisations
@@ -113,19 +113,12 @@ index cd45bfb51294e3510792320e2a159f1c6d554ce1..727b9c93a903d29d67548d34332eeedb
      public FlowingFluid() {}
  
      @Override
-@@ -249,78 +291,65 @@ public abstract class FlowingFluid extends Fluid {
+@@ -239,53 +281,70 @@ public abstract class FlowingFluid extends Fluid {
          }
      }
  
 -    private boolean canPassThroughWall(Direction face, BlockGetter world, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState) {
--        // Gale start - Airplane - improve fluid direction caching - modify to use our cache
--        /*
 -        Object2ByteLinkedOpenHashMap object2bytelinkedopenhashmap;
--
--        if (!state.getBlock().hasDynamicShape() && !fromState.getBlock().hasDynamicShape()) {
--            object2bytelinkedopenhashmap = (Object2ByteLinkedOpenHashMap) FlowingFluid.OCCLUSION_CACHE.get();
--        } else {
--            object2bytelinkedopenhashmap = null;
 +    // Moonrise start - fluid method optimisations
 +    private static boolean canPassThroughWall(final Direction direction, final BlockGetter level,
 +                                              final BlockPos fromPos, final BlockState fromState,
@@ -133,71 +126,56 @@ index cd45bfb51294e3510792320e2a159f1c6d554ce1..727b9c93a903d29d67548d34332eeedb
 +        if (((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) fromState).moonrise$emptyCollisionShape() & ((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) toState).moonrise$emptyCollisionShape()) {
 +            // don't even try to cache simple cases
 +            return true;
-         }
--         */
--        gg.airplane.structs.FluidDirectionCache<Block.BlockStatePairKey> cache = null;
--
++        }
+ 
 -        if (!state.getBlock().hasDynamicShape() && !fromState.getBlock().hasDynamicShape()) {
--            cache = localFluidDirectionCache.get();
+-            object2bytelinkedopenhashmap = (Object2ByteLinkedOpenHashMap) FlowingFluid.OCCLUSION_CACHE.get();
+-        } else {
+-            object2bytelinkedopenhashmap = null;
 +        if (((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) fromState).moonrise$occludesFullBlock() | ((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) toState).moonrise$occludesFullBlock()) {
 +            // don't even try to cache simple cases
 +            return false;
          }
+ 
+-        Block.BlockStatePairKey block_a;
 +        final ca.spottedleaf.moonrise.patches.collisions.util.FluidOcclusionCacheKey[] cache = ((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) fromState).moonrise$hasCache() & ((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) toState).moonrise$hasCache() ?
 +                COLLISION_OCCLUSION_CACHE.get() : null;
  
--        Block.BlockStatePairKey block_a;
+-        if (object2bytelinkedopenhashmap != null) {
+-            block_a = new Block.BlockStatePairKey(state, fromState, face);
+-            byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(block_a);
 +        final int keyIndex
 +                = (((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) fromState).moonrise$uniqueId1() ^ ((ca.spottedleaf.moonrise.patches.collisions.block.CollisionBlockState) toState).moonrise$uniqueId2() ^ ((ca.spottedleaf.moonrise.patches.collisions.util.CollisionDirection) (Object) direction).moonrise$uniqueId())
 +                & (COLLISION_OCCLUSION_CACHE_SIZE - 1);
  
--        /*
--        if (object2bytelinkedopenhashmap != null) {
--            block_a = new Block.BlockStatePairKey(state, fromState, face);
--            byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(block_a);
--
 -            if (b0 != 127) {
 -                return b0 != 0;
--            }
--        } else {
--            block_a = null;
--        }
--         */
-         if (cache != null) {
--            block_a = new Block.BlockStatePairKey(state, fromState, face);
--            Boolean flag = cache.getValue(block_a);
--            if (flag != null) {
--                return flag;
--            }
--        } else {
--            block_a = null;
--        }
--
--        VoxelShape voxelshape = state.getCollisionShape(world, pos);
--        VoxelShape voxelshape1 = fromState.getCollisionShape(world, fromPos);
--        boolean flag = !Shapes.mergedFaceOccludes(voxelshape, voxelshape1, face);
--
--        /*
--        if (object2bytelinkedopenhashmap != null) {
--            if (object2bytelinkedopenhashmap.size() == 200) {
--                object2bytelinkedopenhashmap.removeLastByte();
++        if (cache != null) {
 +            final ca.spottedleaf.moonrise.patches.collisions.util.FluidOcclusionCacheKey cached = cache[keyIndex];
 +            if (cached != null && cached.first() == fromState && cached.second() == toState && cached.direction() == direction) {
 +                return cached.result();
              }
--
--            object2bytelinkedopenhashmap.putAndMoveToFirst(block_a, (byte) (flag ? 1 : 0));
+-        } else {
+-            block_a = null;
          }
--         */
+ 
+-        VoxelShape voxelshape = state.getCollisionShape(world, pos);
+-        VoxelShape voxelshape1 = fromState.getCollisionShape(world, fromPos);
+-        boolean flag = !Shapes.mergedFaceOccludes(voxelshape, voxelshape1, face);
 +        final VoxelShape shape1 = fromState.getCollisionShape(level, fromPos);
 +        final VoxelShape shape2 = toState.getCollisionShape(level, toPos);
+ 
+-        if (object2bytelinkedopenhashmap != null) {
+-            if (object2bytelinkedopenhashmap.size() == 200) {
+-                object2bytelinkedopenhashmap.removeLastByte();
+-            }
 +        final boolean result = !Shapes.mergedFaceOccludes(shape1, shape2, direction);
-         if (cache != null) {
--            cache.putValue(block_a, flag);
+ 
+-            object2bytelinkedopenhashmap.putAndMoveToFirst(block_a, (byte) (flag ? 1 : 0));
++        if (cache != null) {
 +            // we can afford to replace in-use keys more often due to the excessive caching the collision patch does in mergedFaceOccludes
 +            cache[keyIndex] = new ca.spottedleaf.moonrise.patches.collisions.util.FluidOcclusionCacheKey(fromState, toState, direction, result);
          }
--        // Gale end - Airplane - improve fluid direction caching - modify to use our cache
  
 -        return flag;
 +        return result;

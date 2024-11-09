@@ -16546,10 +16546,10 @@ index ae1e164285f5675371bf036c8a564d9f5c1dd395..976ac286b4a6b8a843d275583dacb4ca
                                              for (int l = 0; l < k; ++l) {
                                                  // Paper start - PhantomPreSpawnEvent
 diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-index 0eac7bc0c56ac17c900737271a965cfc1ccd03d2..cd45bfb51294e3510792320e2a159f1c6d554ce1 100644
+index 1c0712295695727ee9c4d430d4157b8e17cbd71f..3b197331f51b12b55a40f2abb6ce99ef0fb65f17 100644
 --- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
 +++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-@@ -227,7 +227,7 @@ public abstract class FlowingFluid extends Fluid {
+@@ -217,7 +217,7 @@ public abstract class FlowingFluid extends Fluid {
              }
          }
  
@@ -16558,7 +16558,7 @@ index 0eac7bc0c56ac17c900737271a965cfc1ccd03d2..cd45bfb51294e3510792320e2a159f1c
              BlockState iblockdata2 = world.getBlockState(pos.below());
              FluidState fluid1 = iblockdata2.getFluidState();
  
-@@ -325,6 +325,12 @@ public abstract class FlowingFluid extends Fluid {
+@@ -290,6 +290,12 @@ public abstract class FlowingFluid extends Fluid {
  
      protected abstract boolean canConvertToSource(Level world);
  
