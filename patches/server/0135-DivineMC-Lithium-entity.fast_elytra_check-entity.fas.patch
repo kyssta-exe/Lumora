@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kidofcubes <kidofcubes@gmail.com>
+Date: Fri, 8 Nov 2024 00:22:44 +0800
+Subject: [PATCH] DivineMC - Lithium: entity.fast_elytra_check +
+ entity.fast_hand_swing
+
+Original license: GPL v3
+Original project: https://github.com/DivineMC/DivineMC
+
+Original license: LGPL v3
+Original project: https://github.com/CaffeineMC/lithium-fabric
+
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 241e2598973939b7d19768cd9ca7cd8f3818c053..7ce6ce7212b942a8d6b64c98fab8fe060d813c61 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -2769,6 +2769,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+     }
+ 
+     protected void updateSwingTime() {
++        if (!this.swinging && this.swingTime == 0) return; // DivineMC - Lithium: entity.fast_hand_swing
+         int i = this.getCurrentSwingDuration();
+ 
+         if (this.swinging) {
+@@ -3747,6 +3748,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+     }
+ 
+     private void updateFallFlying() {
++        if (!this.isFallFlying()) return; // DivineMC - Lithium: entity.fast_elytra_check
+         boolean flag = this.getSharedFlag(7);
+ 
+         if (flag && !this.onGround() && !this.isPassenger() && !this.hasEffect(MobEffects.LEVITATION)) {
