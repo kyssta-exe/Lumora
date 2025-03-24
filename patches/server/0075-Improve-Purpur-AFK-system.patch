@@ -7,19 +7,19 @@ AFK command & command cooldown
 AFK title message
 
 diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
-index 7b27575ee14ea30c104be2a231d378f69f7bd347..91eea05a68d0ace8678fc5071e67cedb18a4386b 100644
+index 7b27575ee14ea30c104be2a231d378f69f7bd347..5d3c521449dd6072297eea611e52a6752a65135e 100644
 --- a/src/main/java/net/minecraft/commands/Commands.java
 +++ b/src/main/java/net/minecraft/commands/Commands.java
 @@ -248,6 +248,7 @@ public class Commands {
              StopCommand.register(this.dispatcher);
              TransferCommand.register(this.dispatcher);
              WhitelistCommand.register(this.dispatcher);
-+            org.purpurmc.purpur.command.AFKCommand.register(this.dispatcher); // Leaf - Improve Purpur AFK system
++            if (org.dreeam.leaf.config.modules.gameplay.AfkCommand.enabled) org.purpurmc.purpur.command.AFKCommand.register(this.dispatcher); // Leaf - Improve Purpur AFK system
              org.purpurmc.purpur.command.CreditsCommand.register(this.dispatcher); // Purpur
              org.purpurmc.purpur.command.DemoCommand.register(this.dispatcher); // Purpur
              org.purpurmc.purpur.command.PingCommand.register(this.dispatcher); // Purpur
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index 7c6bda95b8b08cc70182f19cf0b991f78d28c235..79df52237b7a5822e0cbaff015ccd193a8195980 100644
+index e36358d0217a181b101c7dfbb3ea265fd15597c1..374f1fce66c53c5d367724c4eee27f99ff7881db 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -2414,6 +2414,10 @@ public class ServerPlayer extends net.minecraft.world.entity.player.Player imple
@@ -57,7 +57,7 @@ index 7c6bda95b8b08cc70182f19cf0b991f78d28c235..79df52237b7a5822e0cbaff015ccd193
              } else {
                  getBukkitEntity().setPlayerListName(prefix + scoreboardName + suffix, true);
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 39428db6c83527c085f4dcb012b4da297840bca6..81834489ee488be58b70dae0336645e4147d8dae 100644
+index 39428db6c83527c085f4dcb012b4da297840bca6..03fe04aa054b6190b0d77aa9c8c77893c63d477f 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -2271,6 +2271,8 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
@@ -74,7 +74,7 @@ index 39428db6c83527c085f4dcb012b4da297840bca6..81834489ee488be58b70dae0336645e4
          }
  
 +        // Leaf start - Improve Purpur AFK system
-+        if (command.equals("afk")) {
++        if (org.dreeam.leaf.config.modules.gameplay.AfkCommand.enabled && command.equals("afk")) {
 +            this.player.commandAfkStatus = this.player.isAfk();
 +            this.player.isCommandAfk = true;
 +
@@ -113,7 +113,7 @@ index 39428db6c83527c085f4dcb012b4da297840bca6..81834489ee488be58b70dae0336645e4
          } // Paper - Add missing SpigotConfig logCommands check
  
 +        // Leaf start - Improve Purpur AFK system
-+        if (command.equals("/afk")) {
++        if (org.dreeam.leaf.config.modules.gameplay.AfkCommand.enabled && command.equals("/afk")) {
 +            this.player.commandAfkStatus = this.player.isAfk();
 +            this.player.isCommandAfk = true;
 +
@@ -142,17 +142,46 @@ index 39428db6c83527c085f4dcb012b4da297840bca6..81834489ee488be58b70dae0336645e4
          this.cserver.getPluginManager().callEvent(event);
          command = event.getMessage().substring(1);
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index bc7dd0ceea8bb304fb4370084bf19f29c1df0828..3ac1446ed791e06e2bbf226b925890ac4d1a16de 100644
+index 8d8f552acd4d2e846e1fd0bc19574d93c372fc2b..f307305760546d83007aacab2a2eaadede83dc53 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -756,6 +756,7 @@ public abstract class PlayerList {
          org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePlayerLeave(entityplayer); // Leaves - protocol
          // Paper end - Fix kick event leave message not being sent
          org.purpurmc.purpur.task.BossBarTask.removeFromAll(entityplayer.getBukkitEntity()); // Purpur
-+        net.minecraft.server.network.ServerGamePacketListenerImpl.afkCooldown.remove(entityplayer.getBukkitEntity().getUniqueId()); // Leaf - Improve Purpur AFK system
++        if (org.dreeam.leaf.config.modules.gameplay.AfkCommand.enabled) net.minecraft.server.network.ServerGamePacketListenerImpl.afkCooldown.remove(entityplayer.getBukkitEntity().getUniqueId()); // Leaf - Improve Purpur AFK system
          ServerLevel worldserver = entityplayer.serverLevel();
  
          entityplayer.awardStat(Stats.LEAVE_GAME);
+diff --git a/src/main/java/org/dreeam/leaf/config/modules/gameplay/AfkCommand.java b/src/main/java/org/dreeam/leaf/config/modules/gameplay/AfkCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1ac66384e2ccb9f21eefdbad4a681c6611a094fd
+--- /dev/null
++++ b/src/main/java/org/dreeam/leaf/config/modules/gameplay/AfkCommand.java
+@@ -0,0 +1,23 @@
++package org.dreeam.leaf.config.modules.gameplay;
++
++import org.dreeam.leaf.config.ConfigModules;
++import org.dreeam.leaf.config.EnumConfigCategory;
++
++public class AfkCommand extends ConfigModules {
++
++    public String getBasePath() {
++        return EnumConfigCategory.GAMEPLAY.getBaseKeyName() + ".afk-command";
++    }
++
++    public static boolean enabled = false;
++
++    @Override
++    public void onLoaded() {
++        enabled = config.getBoolean(getBasePath() + ".enabled", enabled, config.pickStringRegionBased("""
++                        The AFK command based on Minecraft built-in idle-timeout mechanism
++                        Rest of AFK settings are in the Purpur config""",
++                """
++                        基于原版 idle-timeout 系统的 AFK 指令
++                        剩余配置项在 Purpur 配置里"""));
++    }
++}
 diff --git a/src/main/java/org/purpurmc/purpur/PurpurConfig.java b/src/main/java/org/purpurmc/purpur/PurpurConfig.java
 index 654e838d9a77e0dd8fe9fb1d4804785ad0f463c8..5b9b9830eadf133e5ee822d6d6a0d649e08a53ed 100644
 --- a/src/main/java/org/purpurmc/purpur/PurpurConfig.java

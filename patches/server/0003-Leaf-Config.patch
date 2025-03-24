@@ -11,7 +11,7 @@ Add per world config
 Add config reload
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index c3790a8ebeeaaa395449e30ab69f1abfa9637034..a56ff254fb752030600fdf1d4ce62ff7ec14765d 100644
+index c3790a8ebeeaaa395449e30ab69f1abfa9637034..062b8e4acd90c588676b6db56cffe277c90338c2 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -14,6 +14,13 @@ val alsoShade: Configuration by configurations.creating
@@ -20,7 +20,7 @@ index c3790a8ebeeaaa395449e30ab69f1abfa9637034..a56ff254fb752030600fdf1d4ce62ff7
      implementation(project(":leaf-api")) // Gale start - project setup - Depend on own API // Leaf
 +
 +    // Leaf start - Leaf Config
-+    implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-rc.2") {
++    implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-rc.3") {
 +        exclude(group = "org.yaml", module = "snakeyaml")
 +    }
 +    // Leaf end - Leaf Config
@@ -29,14 +29,19 @@ index c3790a8ebeeaaa395449e30ab69f1abfa9637034..a56ff254fb752030600fdf1d4ce62ff7
      implementation("org.jline:jline-terminal-jansi:3.21.0")
      implementation("net.minecrell:terminalconsoleappender:1.3.0")
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
-index 278adb48400ca9d4fd37bff040b37d4a8dd47282..759b22fc6f949829cef757232357368ef80d0d34 100644
+index 278adb48400ca9d4fd37bff040b37d4a8dd47282..543c673a4b1607a8a7fe71f8554ccc4625db6fe9 100644
 --- a/src/main/java/net/minecraft/server/Main.java
 +++ b/src/main/java/net/minecraft/server/Main.java
-@@ -124,6 +124,7 @@ public class Main {
+@@ -120,10 +120,12 @@ public class Main {
+                 JvmProfiler.INSTANCE.start(Environment.SERVER);
+             }
+ 
++            org.dreeam.leaf.config.LeafConfig.loadConfig(); // Leaf
+             io.papermc.paper.plugin.PluginInitializerManager.load(optionset); // Paper
              Bootstrap.bootStrap();
              Bootstrap.validate();
              Util.startTimerHackThread();
-+            org.dreeam.leaf.config.LeafConfig.loadConfig(); // Leaf
++            org.dreeam.leaf.config.ConfigModules.loadAfterBootstrap(); // Leaf - Leaf config - post load
              Path path1 = Paths.get("server.properties");
              DedicatedServerSettings dedicatedserversettings = new DedicatedServerSettings(optionset); // CraftBukkit - CLI argument support
  
@@ -56,10 +61,10 @@ index 4efbd656c57672b84c5d90f987bd57c67fc0c550..05f805c7e7a6ff6d40b9f86aaac5362a
              long tickSection = Util.getNanos();
 diff --git a/src/main/java/org/dreeam/leaf/config/ConfigModules.java b/src/main/java/org/dreeam/leaf/config/ConfigModules.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..475da1247655dd07ab59273ab5794b04b20e05ed
+index 0000000000000000000000000000000000000000..a4f2e6a2d0ac0d1a4d346af7bd82276105ff0a79
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/config/ConfigModules.java
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,71 @@
 +package org.dreeam.leaf.config;
 +
 +import org.dreeam.leaf.config.annotations.Experimental;
@@ -75,7 +80,8 @@ index 0000000000000000000000000000000000000000..475da1247655dd07ab59273ab5794b04
 +
 +public abstract class ConfigModules extends LeafConfig {
 +
-+    private static final Set<ConfigModules> modules = new HashSet<>();
++    private static final Set<ConfigModules> MODULES = new HashSet<>();
++
 +    public LeafGlobalConfig config;
 +
 +    public ConfigModules() {
@@ -88,7 +94,7 @@ index 0000000000000000000000000000000000000000..475da1247655dd07ab59273ab5794b04
 +            ConfigModules module = (ConfigModules) clazz.getConstructor().newInstance();
 +            module.onLoaded();
 +
-+            modules.add(module);
++            MODULES.add(module);
 +            for (Field field : getAnnotatedStaticFields(clazz, Experimental.class)) {
 +                Object obj = field.get(null);
 +                if (!(obj instanceof Boolean)) continue;
@@ -104,6 +110,12 @@ index 0000000000000000000000000000000000000000..475da1247655dd07ab59273ab5794b04
 +        }
 +    }
 +
++    public static void loadAfterBootstrap() {
++        for (ConfigModules module : MODULES) {
++            module.onPostLoaded();
++        }
++    }
++
 +    private static List<Field> getAnnotatedStaticFields(Class<?> clazz, Class<? extends Annotation> annotation) {
 +        List<Field> fields = new ArrayList<>();
 +        for (Field field : clazz.getDeclaredFields()) {
@@ -115,7 +127,14 @@ index 0000000000000000000000000000000000000000..475da1247655dd07ab59273ab5794b04
 +        return fields;
 +    }
 +
++    public static void clearModules() {
++        MODULES.clear();
++    }
++
 +    public abstract void onLoaded();
++
++    public void onPostLoaded() {
++    }
 +}
 diff --git a/src/main/java/org/dreeam/leaf/config/EnumConfigCategory.java b/src/main/java/org/dreeam/leaf/config/EnumConfigCategory.java
 new file mode 100644
@@ -151,10 +170,10 @@ index 0000000000000000000000000000000000000000..7d99f0711c6b4f298dd296c26c11dd9d
 +}
 diff --git a/src/main/java/org/dreeam/leaf/config/LeafConfig.java b/src/main/java/org/dreeam/leaf/config/LeafConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..fdbdf3f6a5071ce629d2881e861075dbeef11b42
+index 0000000000000000000000000000000000000000..94143d1129a571d6a44e835211779e93c1ffc0bd
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/config/LeafConfig.java
-@@ -0,0 +1,269 @@
+@@ -0,0 +1,270 @@
 +package org.dreeam.leaf.config;
 +
 +import io.papermc.paper.configuration.GlobalConfiguration;
@@ -210,6 +229,7 @@ index 0000000000000000000000000000000000000000..fdbdf3f6a5071ce629d2881e861075db
 +            LOGGER.info("Reloading config...");
 +
 +            loadConfig(false);
++            ConfigModules.loadAfterBootstrap();
 +
 +            LOGGER.info("Successfully reloaded config in {}ms.", (System.nanoTime() - begin) / 1_000_000);
 +        } catch (Exception e) {

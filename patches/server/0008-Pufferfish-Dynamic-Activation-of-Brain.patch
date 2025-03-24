@@ -69,7 +69,7 @@ index cb61462d4691a055a4b25f7b953609d8a154fdfe..b2d8a858d8767bd6ca52e0b8db847579
      private String descriptionId;
      @Nullable
 diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
-index 06c57db4e6c76945cba514fc27828ff96fcd2c10..df932757d6a2f6812a1be16a3a71c4c4c75768b5 100644
+index 361000909cedb7ae8bfe326e87be750b6916aa62..465642d06ce366f63c6152e05390b61ddab4148f 100644
 --- a/src/main/java/net/minecraft/world/entity/Mob.java
 +++ b/src/main/java/net/minecraft/world/entity/Mob.java
 @@ -237,10 +237,10 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
@@ -295,10 +295,10 @@ index ba49442ed0b7c05c50dbc2a640f5759e391902f2..c96d612f0b3efc96f3f60f35449811ca
          }
 diff --git a/src/main/java/org/dreeam/leaf/config/modules/opt/DynamicActivationofBrain.java b/src/main/java/org/dreeam/leaf/config/modules/opt/DynamicActivationofBrain.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..7e1e06ff65d1e186e6ec41917945d3d90fe72008
+index 0000000000000000000000000000000000000000..a92c5557bbfc2c8c2e2b916dad5649ed0a98c9d1
 --- /dev/null
 +++ b/src/main/java/org/dreeam/leaf/config/modules/opt/DynamicActivationofBrain.java
-@@ -0,0 +1,81 @@
+@@ -0,0 +1,84 @@
 +package org.dreeam.leaf.config.modules.opt;
 +
 +import net.minecraft.core.registries.BuiltInRegistries;
@@ -360,7 +360,10 @@ index 0000000000000000000000000000000000000000..7e1e06ff65d1e186e6ec41917945d3d9
 +                        "不会被 DAB 影响的实体列表"));
 +
 +        startDistanceSquared = startDistance * startDistance;
++    }
 +
++    @Override
++    public void onPostLoaded() {
 +        for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
 +            entityType.dabEnabled = true; // reset all, before setting the ones to true
 +        }

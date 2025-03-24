@@ -47,7 +47,7 @@ subprojects {
     repositories {
         mavenCentral()
         maven(paperMavenPublicUrl)
-        maven("https://ci.pluginwiki.us/plugin/repository/everything/") // Leaf Config - ConfigurationMaster-API
+        maven("https://repo.bsdevelopment.org/releases/") // Leaf - Leaf config - ConfigurationMaster-API
     }
 }
 

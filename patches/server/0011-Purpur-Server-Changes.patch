@@ -31,7 +31,7 @@ Make-pufferfish-config-relocatable.patch
 MC-121706-Fix-mobs-not-looking-up-and-down-when-stra.patch
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index a56ff254fb752030600fdf1d4ce62ff7ec14765d..d1bcbd39120480b2e1e402040d20b8567019a4b0 100644
+index 062b8e4acd90c588676b6db56cffe277c90338c2..148c2cd116e1dd794f73cc1ed5fe18f320517a82 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -54,6 +54,12 @@ dependencies {
@@ -587,7 +587,7 @@ index 76ef195a5074006b009acd9cc1744667c6aecbb9..659577549e132754281df76a7a1bfd88
      public ClientboundSetTimePacket(long time, long timeOfDay, boolean doDaylightCycle) {
          this.gameTime = time;
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
-index 759b22fc6f949829cef757232357368ef80d0d34..94e6f298b12f86f923bb58b88caec6f3c3b37aa6 100644
+index 543c673a4b1607a8a7fe71f8554ccc4625db6fe9..46de97de75979e5d27b6e0006503891bcb425baf 100644
 --- a/src/main/java/net/minecraft/server/Main.java
 +++ b/src/main/java/net/minecraft/server/Main.java
 @@ -120,6 +120,12 @@ public class Main {
@@ -600,9 +600,9 @@ index 759b22fc6f949829cef757232357368ef80d0d34..94e6f298b12f86f923bb58b88caec6f3
 +            org.purpurmc.purpur.PurpurConfig.registerMinecraftDebugCommands = purpurConfiguration.getBoolean("settings.register-minecraft-debug-commands");
 +            // Purpur end - load config files early
 +
+             org.dreeam.leaf.config.LeafConfig.loadConfig(); // Leaf
              io.papermc.paper.plugin.PluginInitializerManager.load(optionset); // Paper
              Bootstrap.bootStrap();
-             Bootstrap.validate();
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
 index 654c381c210d9e353df8f7bca0cd7a434d997a8f..2bdc050df0333dbd611d1eb2714aa2a00116a2be 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
