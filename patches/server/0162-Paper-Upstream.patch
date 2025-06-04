@@ -1,0 +1,263 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Github Actions <no-reply@github.com>
+Date: Sat, 1 Jan 2000 00:00:00 +0000
+Subject: [PATCH] Paper Upstream
+
+Backported from > Paper 1.21.4
+
+Original license: GPLv3
+Original project: https://github.com/PaperMC/Paper
+
+diff --git a/src/main/java/net/minecraft/network/protocol/common/custom/DiscardedPayload.java b/src/main/java/net/minecraft/network/protocol/common/custom/DiscardedPayload.java
+index e3982dc5136d2c51d7cc2c448759cef44cfba1d3..5fd4636995b31ce77ab37b0c984b42ee97615b7d 100644
+--- a/src/main/java/net/minecraft/network/protocol/common/custom/DiscardedPayload.java
++++ b/src/main/java/net/minecraft/network/protocol/common/custom/DiscardedPayload.java
+@@ -4,18 +4,21 @@ import net.minecraft.network.FriendlyByteBuf;
+ import net.minecraft.network.codec.StreamCodec;
+ import net.minecraft.resources.ResourceLocation;
+ 
+-public record DiscardedPayload(ResourceLocation id, io.netty.buffer.ByteBuf data) implements CustomPacketPayload { // CraftBukkit - store data
++public record DiscardedPayload(ResourceLocation id, byte[] data) implements CustomPacketPayload { // Paper - store data
+ 
+     public static <T extends FriendlyByteBuf> StreamCodec<T, DiscardedPayload> codec(ResourceLocation id, int maxBytes) {
+-        return CustomPacketPayload.codec((discardedpayload, packetdataserializer) -> {
+-            packetdataserializer.writeBytes(discardedpayload.data); // CraftBukkit - serialize
+-        }, (packetdataserializer) -> {
+-            int j = packetdataserializer.readableBytes();
++        // Paper start
++        return CustomPacketPayload.codec((value, output) -> {
++            // Always write data
++            output.writeBytes(value.data);
++        }, buffer -> {
++            int i = buffer.readableBytes();
+ 
+-            if (j >= 0 && j <= maxBytes) {
+-                // CraftBukkit start
+-                return new DiscardedPayload(id, packetdataserializer.readBytes(j));
+-                // CraftBukkit end
++            if (i >= 0 && i <= maxBytes) {
++                final byte[] data = new byte[i];
++                buffer.readBytes(data);
++                return new DiscardedPayload(id, data);
++                // Paper end
+             } else {
+                 throw new IllegalArgumentException("Payload may not be larger than " + maxBytes + " bytes");
+             }
+diff --git a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
+index 22eb98d51e0cbc996195f7f1ba07c0e42ae1f3cf..dce72cf860f3965fe0eec84c30f33cdafa261999 100644
+--- a/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
+@@ -171,72 +171,72 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
+             org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handlePayload(player, leavesPayload);
+         }
+         // Leaves end - protocol
+-        // Paper start - Brand support
++        // Paper start
+         if (packet.payload() instanceof net.minecraft.network.protocol.common.custom.BrandPayload brandPayload) {
+             this.player.clientBrandName = brandPayload.brand();
+         }
+-        // Paper end - Brand support
+-        if (!(packet.payload() instanceof DiscardedPayload)) {
++        if (!(packet.payload() instanceof DiscardedPayload discardedPayload)) {
+             return;
+         }
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.serverLevel());
+-        ResourceLocation identifier = packet.payload().type().id();
+-        ByteBuf payload = ((DiscardedPayload)packet.payload()).data();
++        final net.minecraft.resources.ResourceLocation identifier = packet.payload().type().id();
++        final byte[] data = discardedPayload.data();
++        try {
++            final boolean registerChannel = ServerCommonPacketListenerImpl.CUSTOM_REGISTER.equals(identifier);
++            if (registerChannel || ServerCommonPacketListenerImpl.CUSTOM_UNREGISTER.equals(identifier)) {
++                // Strings separated by zeros instead of length prefixes
++                int startIndex = 0;
++                for (int i = 0; i < data.length; i++) {
++                    final byte b = data[i];
++                    if (b != 0) {
++                        continue;
++                    }
+ 
+-        if (identifier.equals(ServerCommonPacketListenerImpl.CUSTOM_REGISTER)) {
+-            try {
+-                String channels = payload.toString(com.google.common.base.Charsets.UTF_8);
+-                for (String channel : channels.split("\0")) {
+-                    this.getCraftPlayer().addChannel(channel);
+-                    org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleMinecraftRegister(channel, player); // Leaves - protocol
++                    readChannelIdentifier(data, startIndex, i, registerChannel);
++                    startIndex = i + 1;
+                 }
+-            } catch (Exception ex) {
+-                ServerGamePacketListenerImpl.LOGGER.error("Couldn\'t register custom payload", ex);
+-                this.disconnect(Component.literal("Invalid payload REGISTER!"), PlayerKickEvent.Cause.INVALID_PAYLOAD); // Paper - kick event cause
++
++                // Read the last one
++                readChannelIdentifier(data, startIndex, data.length, registerChannel);
++                return;
+             }
+-        // Purpur start
+-        } else if (identifier.equals(PURPUR_CLIENT)) {
+-            try {
++
++            // Purpur start - Purpur client support
++            if (identifier.equals(PURPUR_CLIENT)) {
+                 player.purpurClient = true;
+-            } catch (Exception ignore) {
+-            }
+-        // Purpur end
+-        } else if (identifier.equals(ServerCommonPacketListenerImpl.CUSTOM_UNREGISTER)) {
+-            try {
+-                String channels = payload.toString(com.google.common.base.Charsets.UTF_8);
+-                for (String channel : channels.split("\0")) {
+-                    this.getCraftPlayer().removeChannel(channel);
+-                }
+-            } catch (Exception ex) {
+-                ServerGamePacketListenerImpl.LOGGER.error("Couldn\'t unregister custom payload", ex);
+-                this.disconnect(Component.literal("Invalid payload UNREGISTER!"), PlayerKickEvent.Cause.INVALID_PAYLOAD); // Paper - kick event cause
+             }
+-        } else {
+-            try {
+-                byte[] data = new byte[payload.readableBytes()];
+-                payload.readBytes(data);
+-                // Paper start - Brand support; Retain this incase upstream decides to 'break' the new mechanism in favour of backwards compat...
+-                if (identifier.equals(MINECRAFT_BRAND)) {
+-                    try {
+-                        this.player.clientBrandName = new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.copiedBuffer(data)).readUtf(256);
+-                    } catch (StringIndexOutOfBoundsException ex) {
+-                        this.player.clientBrandName = "illegal";
+-                    }
+-                }
+-                // Paper end - Brand support
+-                this.cserver.getMessenger().dispatchIncomingMessage(this.player.getBukkitEntity(), identifier.toString(), data);
+-            } catch (Exception ex) {
+-                ServerGamePacketListenerImpl.LOGGER.error("Couldn\'t dispatch custom payload", ex);
+-                this.disconnect(Component.literal("Invalid custom payload!"), PlayerKickEvent.Cause.INVALID_PAYLOAD); // Paper - kick event cause
++            // Purpur end - Purpur client support
++
++            if (identifier.equals(MINECRAFT_BRAND)) {
++                this.player.clientBrandName = new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.wrappedBuffer(data)).readUtf(256);
+             }
++
++            this.cserver.getMessenger().dispatchIncomingMessage(this.player.getBukkitEntity(), identifier.toString(), data);
++        } catch (final Exception e) {
++            ServerGamePacketListenerImpl.LOGGER.error("Couldn't handle custom payload on channel {}", identifier, e);
++            this.disconnect(Component.literal("Invalid custom payload payload!"), org.bukkit.event.player.PlayerKickEvent.Cause.INVALID_PAYLOAD); // Paper - kick event cause
+         }
++    }
+ 
++    private void readChannelIdentifier(final byte[] data, final int from, final int to, final boolean register) {
++        final int length = to - from;
++        if (length == 0) {
++            return;
++        }
++
++        final String channel = new String(data, from, length, java.nio.charset.StandardCharsets.US_ASCII);
++        if (register) {
++            this.getCraftPlayer().addChannel(channel);
++            org.leavesmc.leaves.protocol.core.LeavesProtocolManager.handleMinecraftRegister(channel, player); // Leaves - protocol
++        } else {
++            this.getCraftPlayer().removeChannel(channel);
++        }
+     }
+ 
+     public final boolean isDisconnected() {
+         return (!this.player.joining && !this.connection.isConnected()) || this.processedDisconnect; // Paper - Fix duplication bugs
+     }
+-    // CraftBukkit end
++    // Paper end
+ 
+     @Override
+     public void handleResourcePackResponse(ServerboundResourcePackPacket packet) {
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 8349f8d83364e6b2bf51228b622d951e1354b376..d9999324b6ade030d193b0b857f27b648d2f78c0 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -1918,13 +1918,13 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+ 
+                 return;
+             case RELEASE_USE_ITEM:
+-                this.player.releaseUsingItem();
++                if (this.player.getUseItem() == this.player.getItemInHand(this.player.getUsedItemHand())) this.player.releaseUsingItem(); // Paper - validate use item before processing release
+                 return;
+             case START_DESTROY_BLOCK:
+             case ABORT_DESTROY_BLOCK:
+             case STOP_DESTROY_BLOCK:
+                 // Paper start - Don't allow digging into unloaded chunks
+-                if (this.player.level().getChunkIfLoadedImmediately(blockposition.getX() >> 4, blockposition.getZ() >> 4) == null) {
++                if (this.player.level().getChunkIfLoadedImmediately(blockposition.getX() >> 4, blockposition.getZ() >> 4) == null || !this.player.canInteractWithBlock(blockposition, 1.0)) {
+                     this.player.connection.ackBlockChangesUpTo(packet.getSequence());
+                     return;
+                 }
+@@ -2674,20 +2674,19 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+     }
+ 
+     // Spigot start - spam exclusions
+-    private void detectRateSpam(String s) {
++    private void detectRateSpam(String message) {
+         // CraftBukkit start - replaced with thread safe throttle
+-        boolean counted = true;
+-        for ( String exclude : org.spigotmc.SpigotConfig.spamExclusions )
+-        {
+-            if ( exclude != null && s.startsWith( exclude ) )
+-            {
+-                counted = false;
+-                break;
++        if (org.spigotmc.SpigotConfig.enableSpamExclusions) {
++            for (String exclude : org.spigotmc.SpigotConfig.spamExclusions) {
++                if (exclude != null && message.startsWith(exclude)) {
++                    return;
++                }
+             }
+         }
+         // Spigot end
++        // this.chatSpamThrottler.increment();
+         // this.chatSpamTickCount += 20;
+-        if (counted && this.chatSpamTickCount.addAndGet(20) > 200 && !this.server.getPlayerList().isOp(this.player.getGameProfile()) && !this.server.isSingleplayerOwner(this.player.getGameProfile())) { // Paper - exclude from SpigotConfig.spamExclusions
++        if (this.chatSpamTickCount.addAndGet(20) > 200 && !this.server.getPlayerList().isOp(this.player.getGameProfile()) && !this.server.isSingleplayerOwner(this.player.getGameProfile())) { // Paper - exclude from SpigotConfig.spamExclusions
+             // CraftBukkit end
+             this.disconnectAsync((Component) Component.translatable("disconnect.spam"), org.bukkit.event.player.PlayerKickEvent.Cause.SPAM); // Paper - kick event cause // Paper - add proper async disconnect
+         }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index a2f329e958fe72d262da9a4cee050efb69294df4..006c608f6527fbbb046702deb62238b2ea4e673c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -2484,7 +2484,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+     }
+ 
+     private void sendCustomPayload(ResourceLocation id, byte[] message) {
+-        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new DiscardedPayload(id, Unpooled.wrappedBuffer(message)));
++        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new DiscardedPayload(id, message));
+         this.getHandle().connection.send(packet);
+     }
+ 
+diff --git a/src/main/java/org/spigotmc/SpigotConfig.java b/src/main/java/org/spigotmc/SpigotConfig.java
+index 3de9968bc87b3dc024e423b382eb611135bf1b2c..ce3da5111a907abda35912c84c213e7159044e5e 100644
+--- a/src/main/java/org/spigotmc/SpigotConfig.java
++++ b/src/main/java/org/spigotmc/SpigotConfig.java
+@@ -293,13 +293,23 @@ public class SpigotConfig
+         SpigotConfig.playerShuffle = SpigotConfig.getInt( "settings.player-shuffle", 0 );
+     }
+ 
++    public static boolean enableSpamExclusions = false;
+     public static List<String> spamExclusions;
+     private static void spamExclusions()
+     {
+-        SpigotConfig.spamExclusions = SpigotConfig.getList( "commands.spam-exclusions", Arrays.asList( new String[]
+-        {
+-                "/skill"
+-        } ) );
++        SpigotConfig.spamExclusions = SpigotConfig.getList("commands.spam-exclusions", List.of("/skill"));
++        Object enabled = SpigotConfig.config.get("commands.enable-spam-exclusions");
++        if (enabled instanceof Boolean value) {
++            SpigotConfig.enableSpamExclusions = value;
++        } else {
++            if (spamExclusions.size() == 1 && spamExclusions.getFirst().equals("/skill")) {
++                SpigotConfig.enableSpamExclusions = false;
++                SpigotConfig.set("commands.enable-spam-exclusions", false);
++            } else {
++                SpigotConfig.enableSpamExclusions = true;
++                SpigotConfig.set("commands.enable-spam-exclusions", true);
++            }
++        }
+     }
+ 
+     public static boolean silentCommandBlocks;
