@@ -63,7 +63,7 @@ index 52a2b993bbd1ad4851b3273af6ecbc069beb5b84..05df09d5f586c90f3169ddf1fa73a1d3
                  this.level.tickChunk(levelChunk, _int);
              }
 diff --git a/net/minecraft/world/level/NaturalSpawner.java b/net/minecraft/world/level/NaturalSpawner.java
-index 9b37b763c6555705f3e256010f508b5a0c2cdb66..bde7008e14a3b4c0a37a94a4890e2f7fa1ce2466 100644
+index 9b37b763c6555705f3e256010f508b5a0c2cdb66..8f999b425bce52352a04ee3ca11b6854194dd665 100644
 --- a/net/minecraft/world/level/NaturalSpawner.java
 +++ b/net/minecraft/world/level/NaturalSpawner.java
 @@ -155,7 +155,13 @@ public final class NaturalSpawner {
@@ -109,7 +109,7 @@ index 9b37b763c6555705f3e256010f508b5a0c2cdb66..bde7008e14a3b4c0a37a94a4890e2f7f
      }
  
      @VisibleForDebug
-@@ -275,31 +283,55 @@ public final class NaturalSpawner {
+@@ -275,31 +283,59 @@ public final class NaturalSpawner {
          StructureManager structureManager = level.structureManager();
          ChunkGenerator generator = level.getChunkSource().getGenerator();
          int y = pos.getY();
@@ -136,6 +136,10 @@ index 9b37b763c6555705f3e256010f508b5a0c2cdb66..bde7008e14a3b4c0a37a94a4890e2f7f
 -                int ceil = Mth.ceil(level.random.nextFloat() * 4.0F);
 +                int ceil = (int) ((rand & 0x3L) + 1L);
 +                bits += 2;
++                if (bits >= 62) {
++                    rand = level.random.nextLong();
++                    bits = 0;
++                }
                  int i3 = 0;
  
                  for (int i4 = 0; i4 < ceil; i4++) {
@@ -143,10 +147,6 @@ index 9b37b763c6555705f3e256010f508b5a0c2cdb66..bde7008e14a3b4c0a37a94a4890e2f7f
 -                    z += level.random.nextInt(6) - level.random.nextInt(6);
 +                    int rand1=0,rand2=0,rand3=0,rand4=0,valuesNeeded=4;
 +                    while (valuesNeeded > 0) {
-+                        if (bits > 61) {
-+                            rand = level.random.nextLong();
-+                            bits = 0;
-+                        }
 +                        int threeBits = (int) ((rand >>> bits) & 0x7L);
 +                        bits += 3;
 +                        if (threeBits != 7 && threeBits != 6) {
@@ -157,6 +157,10 @@ index 9b37b763c6555705f3e256010f508b5a0c2cdb66..bde7008e14a3b4c0a37a94a4890e2f7f
 +                                case 4 -> rand1 = threeBits;
 +                            }
 +                            valuesNeeded--;
++                        }
++                        if (bits >= 62) {
++                            rand = level.random.nextLong();
++                            bits = 0;
 +                        }
 +                    }
 +                    x += rand1 - rand2;
@@ -173,7 +177,7 @@ index 9b37b763c6555705f3e256010f508b5a0c2cdb66..bde7008e14a3b4c0a37a94a4890e2f7f
                              if (spawnerData == null) {
                                  Optional<MobSpawnSettings.SpawnerData> randomSpawnMobAt = getRandomSpawnMobAt(
                                      level, structureManager, generator, category, level.random, mutableBlockPos
-@@ -368,8 +400,8 @@ public final class NaturalSpawner {
+@@ -368,8 +404,8 @@ public final class NaturalSpawner {
  
      private static boolean isRightDistanceToPlayerAndSpawnPoint(ServerLevel level, ChunkAccess chunk, BlockPos.MutableBlockPos pos, double distance) {
          return !(distance <= 576.0)
@@ -184,7 +188,7 @@ index 9b37b763c6555705f3e256010f508b5a0c2cdb66..bde7008e14a3b4c0a37a94a4890e2f7f
      }
  
      // Paper start - PreCreatureSpawnEvent
-@@ -474,6 +506,17 @@ public final class NaturalSpawner {
+@@ -474,6 +510,17 @@ public final class NaturalSpawner {
          }
      }
  
