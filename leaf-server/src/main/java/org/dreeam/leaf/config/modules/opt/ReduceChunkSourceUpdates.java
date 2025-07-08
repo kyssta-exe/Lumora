@@ -25,7 +25,7 @@ public class ReduceChunkSourceUpdates extends ConfigModules {
         enabled = config.getBoolean(getBasePath() + ".force-enabled", enabled);
 
         if (config.getBoolean(getBasePath() + ".enabled", enabled)) {
-            LOGGER.warn("Disabled reduce-chunk-source-updates due to its experimental");
+            LOGGER.warn("The 'reduce-chunk-source-updates' feature is experimental and has been enabled.");
         }
     }
 }
