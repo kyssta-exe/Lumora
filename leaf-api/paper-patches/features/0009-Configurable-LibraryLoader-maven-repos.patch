@@ -7,7 +7,7 @@ Add JVM flag `-DLeaf.library-download-repo=link` to choose library download repo
 e.g. `-DLeaf.library-download-repo=https://maven.aliyun.com/repository/public`
 
 diff --git a/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java b/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java
-index f12c25f35f3d26dc69e05c7965385e66a3d3d545..768b60e13435dc8eca6fc343081a663a37a6d0e7 100644
+index 0f26a192b709cbcda83fad0a0a78f87dbb9e701e..b0e20089283b2fb3fa0c65f96e1f6bd6634712e9 100644
 --- a/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java
 +++ b/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java
 @@ -60,12 +60,25 @@ public class MavenLibraryResolver implements ClassPathLibrary {
@@ -38,29 +38,26 @@ index f12c25f35f3d26dc69e05c7965385e66a3d3d545..768b60e13435dc8eca6fc343081a663a
      // Paper end - Avoid and discourage use of Maven Central as a CDN
  
      private static final Logger LOGGER = LoggerFactory.getLogger("MavenLibraryResolver");
-@@ -124,13 +137,32 @@ public class MavenLibraryResolver implements ClassPathLibrary {
+@@ -124,12 +137,33 @@ public class MavenLibraryResolver implements ClassPathLibrary {
       */
      public void addRepository(final RemoteRepository remoteRepository) {
          // Paper start - Avoid and discourage use of Maven Central as a CDN
 -        if (MAVEN_CENTRAL_URLS.stream().anyMatch(remoteRepository.getUrl()::startsWith)) {
--            try {
--                throw new RuntimeException("Plugin used Maven Central for library resolution");
--            } catch (RuntimeException e) {
--                LOGGER.error("Use of Maven Central as a CDN is against the Maven Central Terms of Service. Use MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR instead.", e);
 +        // Leaf start - Configurable LibraryLoader maven repos
-+         for (String url : MAVEN_CENTRAL_URLS) {
-+             if (remoteRepository.getUrl().startsWith(url)) {
-+                 RemoteRepository mirrorRepo = CUSTOM_MAVEN_CENTRAL_MIRROR_REPO;
-+                 if (mirrorRepo != null) {
-+                     this.repositories.add(mirrorRepo);
-+                     return;
-+                 }
-+                 try {
-+                     throw new RuntimeException("Plugin used Maven Central for library resolution");
-+                 } catch (RuntimeException e) {
-+                     LOGGER.error("Use of Maven Central as a CDN is against the Maven Central Terms of Service. Use MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR instead.", e);
-+                 }
-+             }
++        for (String url : MAVEN_CENTRAL_URLS) {
++            if (remoteRepository.getUrl().startsWith(url)) {
++                RemoteRepository mirrorRepo = CUSTOM_MAVEN_CENTRAL_MIRROR_REPO;
++                if (mirrorRepo != null) {
++                    this.repositories.add(mirrorRepo);
++                    return;
++                }
++                // Leaf end - Configurable LibraryLoader maven repos
+             LOGGER.warn(
+                 "Use of Maven Central as a CDN is against the Maven Central Terms of Service. Use MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR instead. DO NOT report it to Paper or Leaf! Please contact plugin's support to adapt this change.", // Leaf - Better warning message for discouraging Maven Central as CDN
+                 new RuntimeException("Plugin used Maven Central for library resolution")
+             );
++                // Leaf start - Configurable LibraryLoader maven repos
++            }
 +        }
 +         // Match google api maven central mirror urls
 +        for (String url : MAVEN_CENTRAL_GOOGLE_MIRROR_URLS) {
@@ -70,13 +67,13 @@ index f12c25f35f3d26dc69e05c7965385e66a3d3d545..768b60e13435dc8eca6fc343081a663a
 +                    this.repositories.add(mirrorRepo);
 +                    return;
 +                }
-             }
++            }
          }
 +        // Leaf end - Configurable LibraryLoader maven repos
          // Paper end - Avoid and discourage use of Maven Central as a CDN
          this.repositories.add(remoteRepository);
      }
-@@ -170,4 +202,15 @@ public class MavenLibraryResolver implements ClassPathLibrary {
+@@ -169,4 +203,15 @@ public class MavenLibraryResolver implements ClassPathLibrary {
          return central;
      }
      // Paper end - Avoid and discourage use of Maven Central as a CDN

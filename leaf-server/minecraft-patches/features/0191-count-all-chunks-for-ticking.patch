@@ -3,6 +3,7 @@ From: Taiyou06 <kaandindar21@gmail.com>
 Date: Sun, 16 Feb 2025 01:13:04 +0100
 Subject: [PATCH] count all chunks for ticking
 
+
 diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
 index e07fdd22e08cb4e30cf606c055e85b5946e8c046..432c98b582ab40f893835a7a24ef9bbdacc49bd7 100644
 --- a/net/minecraft/server/level/ServerChunkCache.java
