@@ -1810,10 +1810,10 @@ index 0a6a3060f3690ab2d8439d66e6fd6f0c5dc20688..0fa38df5e2e11765a1d43ccc14b47730
                      ServerLevel serverLevel = getServerLevel(this.mob);
                      if (this.lookAtType == Player.class) {
 diff --git a/net/minecraft/world/entity/animal/Rabbit.java b/net/minecraft/world/entity/animal/Rabbit.java
-index da5b32a17283e540615373097acc511d928aeff5..6211c6e41161852c06330f61b21969ac9a49cad8 100644
+index 9a848165cfc4991a21643f01eee853c5fe32f9e8..5be4189769e2b86defa310a15e0b8179619b9838 100644
 --- a/net/minecraft/world/entity/animal/Rabbit.java
 +++ b/net/minecraft/world/entity/animal/Rabbit.java
-@@ -642,7 +642,13 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
+@@ -651,7 +651,13 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
                  this.wantsToRaid = this.rabbit.wantsMoreFood();
              }
  
@@ -1828,7 +1828,7 @@ index da5b32a17283e540615373097acc511d928aeff5..6211c6e41161852c06330f61b21969ac
          }
  
          @Override
-@@ -685,7 +691,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
+@@ -694,7 +700,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
          @Override
          protected boolean isValidTarget(LevelReader level, BlockPos pos) {
              BlockState blockState = level.getBlockState(pos);
@@ -1837,7 +1837,7 @@ index da5b32a17283e540615373097acc511d928aeff5..6211c6e41161852c06330f61b21969ac
                  blockState = level.getBlockState(pos.above());
                  if (blockState.getBlock() instanceof CarrotBlock && ((CarrotBlock)blockState.getBlock()).isMaxAge(blockState)) {
                      this.canRaid = true;
-@@ -695,6 +701,13 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
+@@ -704,6 +710,13 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
  
              return false;
          }

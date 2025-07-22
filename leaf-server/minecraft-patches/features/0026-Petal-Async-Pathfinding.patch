@@ -582,6 +582,26 @@ index d5727999eb67ff30dbf47865d59452483338e170..110e49f17eb2c4fdf360263b00f4736d
              }
          }
      }
+diff --git a/net/minecraft/world/entity/animal/Rabbit.java b/net/minecraft/world/entity/animal/Rabbit.java
+index da5b32a17283e540615373097acc511d928aeff5..9a848165cfc4991a21643f01eee853c5fe32f9e8 100644
+--- a/net/minecraft/world/entity/animal/Rabbit.java
++++ b/net/minecraft/world/entity/animal/Rabbit.java
+@@ -584,6 +584,15 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
+ 
+         @Override
+         public void vanillaTick() { // Purpur - Ridables
++            // Leaf start - async pathfinding - don't make movement decisions with unprocessed paths
++            if (org.dreeam.leaf.config.modules.async.AsyncPathfinding.enabled) {
++                Path path = this.rabbit.getNavigation().getPath();
++                if (path != null && !path.isProcessed()) {
++                    return; // Wait for path processing before making movement decisions
++                }
++            }
++            // Leaf end - async pathfinding
++
+             if (this.rabbit.onGround() && !this.rabbit.jumping && !((Rabbit.RabbitJumpControl)this.rabbit.jumpControl).wantJump()) {
+                 this.rabbit.setSpeedModifier(0.0);
+             } else if (this.hasWanted() || this.operation == MoveControl.Operation.JUMPING) {
 diff --git a/net/minecraft/world/entity/animal/frog/Frog.java b/net/minecraft/world/entity/animal/frog/Frog.java
 index e5ec23c413e0d7da6f6b9c43925a7aa247946895..6e5cb137b3aa91321528d00a1433009cb9a0e656 100644
 --- a/net/minecraft/world/entity/animal/frog/Frog.java
