@@ -14,7 +14,7 @@ ThreadUnsafeRandom (Moonrise): 102,265,100 ns
 SimpleThreadUnsafeRandom (Moonrise): 97,054,600 ns
 
 diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
-index 4070a6eb52f6097e38c2d85c231d39ea3785cf46..bb76dbf98979fdc725676c98dafe64ea941cb290 100644
+index 32005b9d01169c6ad391a66101fdf26edb02fabc..20388a43937a460f817c7186d2acbc0c1beee78c 100644
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
 @@ -150,7 +150,7 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
@@ -27,7 +27,7 @@ index 4070a6eb52f6097e38c2d85c231d39ea3785cf46..bb76dbf98979fdc725676c98dafe64ea
          final ca.spottedleaf.moonrise.patches.chunk_system.level.chunk.ChunkData chunkData = ((ca.spottedleaf.moonrise.patches.chunk_system.level.chunk.ChunkSystemChunkHolder)((ca.spottedleaf.moonrise.patches.chunk_system.level.chunk.ChunkSystemLevelChunk)levelChunk).moonrise$getChunkAndHolder().holder())
              .moonrise$getRealChunkHolder().holderData;
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 3c92508724bd2c8244ee4591c6b00b01657216f2..0290e1f0c45677d337f77a0c8269894b32a43ca9 100644
+index e413e8e68d162d7296180bbe65ed73b29ffb11ac..275b640f4536366152f59acf071dd4eba15696c8 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -902,7 +902,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe

@@ -46,7 +46,7 @@ index 6c7edbbf3935c40ccb78bee680ea75431718b9bd..a1b4dc70d555cce5e06c0298736d8b89
          public String toString() {
              return "Reference{" + this.key + "=" + this.value + "}";
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 970420761b2c3b82a60479c556e76e385bf211e1..4d88aa70c01e03baf8aea897b00f335c7be91f46 100644
+index 18dfaa60da8de12aea95cda21ee55636bf66f487..7f23b2fdf69d25b3f9a67f3ec945198602ca33fb 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -1984,7 +1984,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess

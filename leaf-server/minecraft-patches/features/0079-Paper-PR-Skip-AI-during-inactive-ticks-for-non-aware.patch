@@ -8,7 +8,7 @@ Original project: https://github.com/PaperMC/Paper
 Paper pull request: https://github.com/PaperMC/Paper/pull/10990
 
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 8b3dfb1385a2252a4aaead5558c0ffbd5c204971..c32086ddf90fafcc55600f9e0724b9f915671482 100644
+index 73e88f96abee63bd8397575308baac018d12cf26..faf05f0c8f273bc723bbe54c70aebdd26c479a6b 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
 @@ -219,6 +219,11 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab

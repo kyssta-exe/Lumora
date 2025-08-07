@@ -5,7 +5,7 @@ Subject: [PATCH] Replace criterion map with optimized collection
 
 
 diff --git a/net/minecraft/server/PlayerAdvancements.java b/net/minecraft/server/PlayerAdvancements.java
-index e4ea26ae84efde7ce54e08a246a6ea2ae2a17151..ddd1eac136fc3327aea8286769efd2d7309f67ec 100644
+index 0a4bcc4c44fed2ededafaf0641315e072b7ba771..d2159a747fe42aa95cfc6bca0e55e3f4485847bb 100644
 --- a/net/minecraft/server/PlayerAdvancements.java
 +++ b/net/minecraft/server/PlayerAdvancements.java
 @@ -60,7 +60,7 @@ public class PlayerAdvancements {
