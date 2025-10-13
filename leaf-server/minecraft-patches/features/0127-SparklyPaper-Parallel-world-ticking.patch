@@ -604,7 +604,7 @@ index d4048661575ebfaf128ba25da365843774364e0e..33dd16a26edd2974f04d9a868d3e58e8
  
          // Gale start - Pufferfish - SIMD support
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index a66e5f6652d9633c856490de36d8d8fdf8a5298a..d6524d5c442555eaeb4d90f6a101262ee669f0d9 100644
+index a66e5f6652d9633c856490de36d8d8fdf8a5298a..81f891a26dd7fd1be87d1488aaf58863d66481c5 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -182,7 +182,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -696,7 +696,7 @@ index a66e5f6652d9633c856490de36d8d8fdf8a5298a..d6524d5c442555eaeb4d90f6a101262e
 +    }
 +
 +    // Executes the actual read operation based on the request type
-+    private Object executeReadRequest(org.dreeam.leaf.async.world.WorldReadRequest request) {
++    public Object executeReadRequest(org.dreeam.leaf.async.world.WorldReadRequest request) {
 +        Object[] params = request.params();
 +        BlockPos pos; // Declare pos outside the switch
 +
