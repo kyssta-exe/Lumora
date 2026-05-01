@@ -22,7 +22,7 @@ index 6fd00b09c1be79e8aec40e87493321c4e24a53c3..1bd52f976392544dc0e0967f2b046783
  
      public static Collection<ServerPlayer> getOptionalPlayers(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
 diff --git a/net/minecraft/commands/arguments/selector/EntitySelector.java b/net/minecraft/commands/arguments/selector/EntitySelector.java
-index 5e5baa885440ee2d67c42b85f0d7b07710f9aa87..4e95306a1e81ad2e977523246fa76a218ba7e08c 100644
+index 7c60c5b24219e462328e83c1d47aa34ec6ba1f5a..2016d82e8f28506a5ef23b3dd6f549009fe4b749 100644
 --- a/net/minecraft/commands/arguments/selector/EntitySelector.java
 +++ b/net/minecraft/commands/arguments/selector/EntitySelector.java
 @@ -163,6 +163,54 @@ public class EntitySelector {

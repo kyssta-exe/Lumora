@@ -27,7 +27,7 @@ index 292c280f3c67181dba30abde212755b0d6f6ee51..1c5711e89cc83b3e34a26a0168a85b86
              CrashReport crashReport = CrashReport.forThrowable(levelTickingException, "Exception ticking world");
              serverLevel.fillReportDetails(crashReport);
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index b6f5edffd11686862a8c19478c1383760b7ccdbc..795cde307cbe88e666c146a141376c1d14a89a75 100644
+index 0cb711e4a6d381c7614f3eaffdcf48f2fc56dde2..51570b4e018e1fdfa631a4bb8e2c3e74f373ed77 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -607,6 +607,12 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe

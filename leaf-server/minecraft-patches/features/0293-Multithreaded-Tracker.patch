@@ -1104,7 +1104,7 @@ index 5e7f0429f8e6441b21994e92c4ecc67a4b71abd7..2c82ebaf9865e31f157e167f7d712efd
          void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet);
  
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 855c0b22fcbebc27e91a86c700b0c1241c1dc182..6e7b1052a09a108dca5a4160a51b57b3af4baba4 100644
+index 7d7ab0ec6f86e593a84dfb9a9595bfbda8e7fcae..ce0b87d86e5271e3279bcf734c366a0e4dd9800c 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -237,6 +237,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -1124,7 +1124,7 @@ index 855c0b22fcbebc27e91a86c700b0c1241c1dc182..6e7b1052a09a108dca5a4160a51b57b3
  
      @Override
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 165ef757cc9b8343c0eaed524dfc36f2eb36a856..622c4b80d08c8b28cb510d47af5f34974e2e9f71 100644
+index 5ba9f002753f85efb6b2426d2cc83d9760380522..1fa7dc5bf321d8bd12e41c0bd0611d79cf56f266 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -876,6 +876,11 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name

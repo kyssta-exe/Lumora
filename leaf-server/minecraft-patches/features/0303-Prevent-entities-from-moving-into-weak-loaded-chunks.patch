@@ -6,7 +6,7 @@ Subject: [PATCH] Prevent entities from moving into weak loaded chunks
 This also should mitigate most cases of memory leaks caused by massive weak loaded projectiles
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index f0dfb72b2657864f5a0c7a6b65fafecaabf9fb7f..eab61f8b6eab2d519f7b29727203859ae3731b52 100644
+index ad79080efeadc5b6a494fffe18bf4869d771a85f..fba220939c6ba93e04642d6e712e538ef085fa80 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -251,7 +251,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -60,7 +60,7 @@ index f0dfb72b2657864f5a0c7a6b65fafecaabf9fb7f..eab61f8b6eab2d519f7b29727203859a
      public final void loadChunksForMoveAsync(AABB box, ca.spottedleaf.concurrentutil.util.Priority priority,
                                               java.util.function.Consumer<List<net.minecraft.world.level.chunk.ChunkAccess>> onLoad) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 964567cb6a1217eac94f999e53c7ed00ea6d3fc0..3f7b844c6654542798afb39df58bf30428e24310 100644
+index ea4e735d64ec06e50c84f0bd64e1bb9133f69167..b5f24507359432789ef0e35637b5bfd94607edc0 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -388,6 +388,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name

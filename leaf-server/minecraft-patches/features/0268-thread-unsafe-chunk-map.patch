@@ -105,7 +105,7 @@ index 457b74bfc34d24b0dcf8a82f0cb245be1117f380..8ef7d727bb309d54f99c388dc03a0ed7
          } catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException e) {
              throw new RuntimeException(e); // Propagate exception
 diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
-index 963a44b8454e88973fdca908aa12fde2d0c27e96..7cacbc7814d47beaabf4a5bab33d7e75dea51bbd 100644
+index 9f08d9d80f2d07db144c575c662148e077ea0b68..0cb14731fed873deb6535988aacb75b6a3c1619a 100644
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
 @@ -78,6 +78,7 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
