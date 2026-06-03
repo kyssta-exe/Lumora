@@ -34,6 +34,32 @@ jobs:
           ./gradlew applyAllPatches --stacktrace --no-daemon \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:+UseG1GC"
 
+      - name: Rebrand Leaf → Lumora
+        run: |
+          # Rebrand in the applied source tree
+          SERVER_DIR="lumora-server/minecraft/src/minecraft/java"
+          API_DIR="lumora-api/minecraft-api/src/main/java"
+
+          if [ -d "$SERVER_DIR" ]; then
+            # Crash report rebrand
+            find "$SERVER_DIR" -name "CrashReport.java" -exec sed -i \
+              's/DO NOT REPORT THIS TO PAPER! REPORT TO LEAF INSTEAD!/DO NOT REPORT THIS TO PAPER! REPORT TO LUMORA INSTEAD!/g' {} +
+
+            # Version string
+            find "$SERVER_DIR" -name "MinecraftServer.java" -exec sed -i \
+              's/"Leaf"/"Lumora"/g' {} +
+
+            # Server brand
+            find "$SERVER_DIR" -name "DedicatedServerProperties.java" -exec sed -i \
+              's/Leaf/Lumora/g' {} +
+          fi
+
+          # Rebrand comments in all Java files
+          find "$SERVER_DIR" "$API_DIR" -name "*.java" 2>/dev/null -exec sed -i \
+            's/\/\/ Leaf/\/\/ Lumora/g; s/\* Leaf/\* Lumora/g' {} +
+
+          echo "Rebrand complete"
+
       - name: Build server JAR
         run: |
           ./gradlew createMojmapPaperclipJar --stacktrace --no-daemon \
