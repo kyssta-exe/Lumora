@@ -37,32 +37,24 @@ jobs:
       - name: Rebrand Leaf → Lumora
         run: |
           set +e
-          echo "=== Scoped rebrand: org.dreeam.leaf -> org.dreeam.lumora ==="
+          echo "=== Scoped rebrand ==="
 
-          # Step 1: Rename ONLY files under dreeam/leaf or dreeam/lumora directories
+          # 1. Move files from org/dreeam/leaf/ to org/dreeam/lumora/
           find . -path "*/dreeam/leaf/*" -name "*.java" | while read f; do
             newf=$(echo "$f" | sed 's|dreeam/leaf/|dreeam/lumora/|g')
             mkdir -p "$(dirname "$newf")"
             mv "$f" "$newf"
-            echo "  Moved: $(basename $f)"
           done
 
-          # Step 2: Also find files that were already in dreeam/lumora but still have Leaf in name
-          find . -path "*/dreeam/lumora/*" -name "*Leaf*.java" | while read f; do
-            newf=$(echo "$f" | sed 's/Leaf/Lumora/g')
-            mv "$f" "$newf"
-            echo "  Renamed: $(basename $f) -> $(basename $newf)"
-          done
-
-          # Step 3: Fix package declarations in moved files
+          # 2. Fix package declarations
           find . -path "*/dreeam/lumora/*" -name "*.java" -exec sed -i \
             's/package org\.dreeam\.leaf/package org.dreeam.lumora/g' {} + 2>/dev/null
 
-          # Step 4: Fix ALL references to org.dreeam.leaf everywhere (imports, package refs, etc.)
+          # 3. Fix ALL references to org.dreeam.leaf across entire codebase
           find . -name "*.java" -exec sed -i \
             's/org\.dreeam\.leaf/org.dreeam.lumora/g' {} + 2>/dev/null
 
-          # Step 5: Fix class name references specific to Leaf (NOT Minecraft API names)
+          # 4. Fix class name references (LeafX → LumoraX, NOT Minecraft API names)
           find . -name "*.java" -exec sed -i \
             -e 's/LeafCustomPayload/LumoraCustomPayload/g' \
             -e 's/LeafSubcommand/LumoraSubcommand/g' \
@@ -79,27 +71,22 @@ jobs:
             -e 's/REPORT TO LEAF/REPORT TO LUMORA/g' \
             {} + 2>/dev/null
 
-          # Step 6: Update the version brand string (but NOT Minecraft API names)
+          # 5. Fix version brand string in Lumora-specific files only
           find . -path "*/dreeam/lumora/*" -name "*.java" -exec sed -i \
-            -e 's/"Leaf"/"Lumora"/g' \
-            {} + 2>/dev/null
+            's/"Leaf"/"Lumora"/g' {} + 2>/dev/null
 
-          # Step 7: Fix files where class name doesn't match filename — ONLY in Leaf/Lumora dirs
-          find . -path "*/dreeam/*" -o -path "*/leaf-server/src/*" -o -path "*/lumora-server/src/*" | grep "\.java$" | while read f; do
-            # Extract the first public class/interface name
-            classname=$(grep -oP 'public\s+(?:class|interface|enum)\s+\K\w+' "$f" | head -1)
-            if [ -n "$classname" ]; then
-              basename_noext=$(basename "$f" .java)
-              if [ "$classname" != "$basename_noext" ]; then
-                dir=$(dirname "$f")
-                newf="$dir/$classname.java"
-                if [ ! -f "$newf" ]; then
-                  mv "$f" "$newf"
-                  echo "  Fixed filename: $basename_noext.java -> $classname.java"
-                fi
-              fi
-            fi
-          done
+          # 6. Rename LeafLitterBlock.java → LumoraLitterBlock.java
+          LEAF_LITTER=$(find . -path "*/net/minecraft/*" -name "LeafLitterBlock.java" | head -1)
+          if [ -n "$LEAF_LITTER" ]; then
+            mv "$LEAF_LITTER" "$(dirname $LEAF_LITTER)/LumoraLitterBlock.java"
+            echo "  Renamed LeafLitterBlock.java -> LumoraLitterBlock.java"
+          fi
+
+          # 7. Rename PermissionedLeafSubcommand.java if it exists
+          PLSC=$(find . -path "*/dreeam/*" -name "PermissionedLeafSubcommand.java" | head -1)
+          if [ -n "$PLSC" ]; then
+            mv "$PLSC" "$(dirname $PLSC)/PermissionedLumoraSubcommand.java"
+          fi
 
           echo "=== Rebrand complete ==="
 
