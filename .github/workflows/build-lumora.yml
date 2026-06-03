@@ -37,30 +37,36 @@ jobs:
       - name: Rebrand Leaf → Lumora
         run: |
           set +e
-          echo "=== Starting rebrand ==="
+          echo "=== Scoped rebrand: org.dreeam.leaf -> org.dreeam.lumora ==="
 
-          # Step 1: Rename files containing "Leaf" in their name to "Lumora"
-          echo "Renaming files..."
-          find . -path "*/src/*" -name "*Leaf*.java" -not -name "*Lumora*" | while read f; do
+          # Step 1: Rename ONLY files under dreeam/leaf or dreeam/lumora directories
+          find . -path "*/dreeam/leaf/*" -name "*.java" | while read f; do
+            newf=$(echo "$f" | sed 's|dreeam/leaf/|dreeam/lumora/|g')
+            mkdir -p "$(dirname "$newf")"
+            mv "$f" "$newf"
+            echo "  Moved: $(basename $f)"
+          done
+
+          # Step 2: Also find files that were already in dreeam/lumora but still have Leaf in name
+          find . -path "*/dreeam/lumora/*" -name "*Leaf*.java" | while read f; do
             newf=$(echo "$f" | sed 's/Leaf/Lumora/g')
             mv "$f" "$newf"
             echo "  Renamed: $(basename $f) -> $(basename $newf)"
           done
 
-          # Step 2: Rename files containing "leaf" in package paths
-          find . -path "*/src/*" -name "*leaf*.java" -not -name "*lumora*" | while read f; do
-            newf=$(echo "$f" | sed 's/leaf/lumora/g')
-            mkdir -p "$(dirname $newf)"
-            mv "$f" "$newf"
-            echo "  Renamed: $(basename $f) -> $(basename $newf)"
-          done
+          # Step 3: Fix package declarations in moved files
+          find . -path "*/dreeam/lumora/*" -name "*.java" -exec sed -i \
+            's/package org\.dreeam\.leaf/package org.dreeam.lumora/g' {} + 2>/dev/null
 
-          # Step 3: Replace class/type references inside Java files
-          echo "Replacing class references..."
-          find . -path "*/src/*" -name "*.java" -exec sed -i \
+          # Step 4: Fix import statements referencing org.dreeam.leaf
+          find . -name "*.java" -exec sed -i \
+            's/import org\.dreeam\.leaf\./import org.dreeam.lumora./g' {} + 2>/dev/null
+
+          # Step 5: Fix class name references specific to Leaf (NOT Minecraft API names)
+          find . -name "*.java" -exec sed -i \
             -e 's/LeafCustomPayload/LumoraCustomPayload/g' \
-            -e 's/PermissionedLeafSubcommand/PermissionedLumoraSubcommand/g' \
             -e 's/LeafSubcommand/LumoraSubcommand/g' \
+            -e 's/PermissionedLeafSubcommand/PermissionedLumoraSubcommand/g' \
             -e 's/LeafCommand/LumoraCommand/g' \
             -e 's/LeafCommands/LumoraCommands/g' \
             -e 's/LeafConfig/LumoraConfig/g' \
@@ -71,17 +77,12 @@ jobs:
             -e 's/LeafServerConfigProvider/LumoraServerConfigProvider/g' \
             -e 's/LeafLitterBlock/LumoraLitterBlock/g' \
             -e 's/REPORT TO LEAF/REPORT TO LUMORA/g' \
-            -e 's/"Leaf"/"Lumora"/g' \
             {} + 2>/dev/null
 
-          # Step 4: Also rename package directories leaf -> lumora
-          find . -type d -name "leaf" -path "*/dreeam/*" | while read d; do
-            newd=$(dirname "$d")/lumora
-            if [ ! -d "$newd" ]; then
-              mv "$d" "$newd"
-              echo "  Renamed dir: leaf -> lumora"
-            fi
-          done
+          # Step 6: Update the version brand string (but NOT Minecraft API names)
+          find . -path "*/dreeam/lumora/*" -name "*.java" -exec sed -i \
+            -e 's/"Leaf"/"Lumora"/g' \
+            {} + 2>/dev/null
 
           echo "=== Rebrand complete ==="
 
