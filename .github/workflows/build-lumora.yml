@@ -82,12 +82,12 @@ jobs:
           find . -path "*/dreeam/lumora/*" -name "*.java" -exec sed -i \
             's/"Leaf"/"Lumora"/g' {} + 2>/dev/null
 
-          # 7. Rename LeafLitterBlock.java → LumoraLitterBlock.java (in MC source tree, not dreeam)
-          LEAF_LITTER=$(find . -path "*/net/minecraft/*" -name "LeafLitterBlock.java" | head -1)
-          if [ -n "$LEAF_LITTER" ]; then
-            mv "$LEAF_LITTER" "$(dirname $LEAF_LITTER)/LumoraLitterBlock.java"
+          # 7. Rename LeafLitterBlock.java → LumoraLitterBlock.java
+          find . -name "LeafLitterBlock.java" -exec bash -c '
+            dir=$(dirname "$1")
+            mv "$1" "$dir/LumoraLitterBlock.java"
             echo "  Renamed LeafLitterBlock.java -> LumoraLitterBlock.java"
-          fi
+          ' _ {} \;
 
           # 7. Rename PermissionedLeafSubcommand.java if it exists
           PLSC=$(find . -path "*/dreeam/*" -name "PermissionedLeafSubcommand.java" | head -1)
