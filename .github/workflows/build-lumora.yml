@@ -84,8 +84,8 @@ jobs:
             -e 's/"Leaf"/"Lumora"/g' \
             {} + 2>/dev/null
 
-          # Step 7: Fix any files where class name doesn't match filename
-          find . -path "*/src/*" -name "*.java" | while read f; do
+          # Step 7: Fix files where class name doesn't match filename — ONLY in Leaf/Lumora dirs
+          find . -path "*/dreeam/*" -o -path "*/leaf-server/src/*" -o -path "*/lumora-server/src/*" | grep "\.java$" | while read f; do
             # Extract the first public class/interface name
             classname=$(grep -oP 'public\s+(?:class|interface|enum)\s+\K\w+' "$f" | head -1)
             if [ -n "$classname" ]; then
