@@ -58,9 +58,9 @@ jobs:
           find . -path "*/dreeam/lumora/*" -name "*.java" -exec sed -i \
             's/package org\.dreeam\.leaf/package org.dreeam.lumora/g' {} + 2>/dev/null
 
-          # Step 4: Fix import statements referencing org.dreeam.leaf
+          # Step 4: Fix ALL references to org.dreeam.leaf everywhere (imports, package refs, etc.)
           find . -name "*.java" -exec sed -i \
-            's/import org\.dreeam\.leaf\./import org.dreeam.lumora./g' {} + 2>/dev/null
+            's/org\.dreeam\.leaf/org.dreeam.lumora/g' {} + 2>/dev/null
 
           # Step 5: Fix class name references specific to Leaf (NOT Minecraft API names)
           find . -name "*.java" -exec sed -i \
