@@ -71,11 +71,18 @@ jobs:
             -e 's/REPORT TO LEAF/REPORT TO LUMORA/g' \
             {} + 2>/dev/null
 
-          # 5. Fix version brand string in Lumora-specific files only
+          # 5. Rename *Leaf*.java files under dreeam/lumora/ to *Lumora*
+          find . -path "*/dreeam/lumora/*" -name "*Leaf*.java" | while read f; do
+            newf=$(echo "$f" | sed 's/Leaf/Lumora/g')
+            mv "$f" "$newf"
+            echo "  Renamed: $(basename $f) -> $(basename $newf)"
+          done
+
+          # 6. Fix version brand string in Lumora-specific files only
           find . -path "*/dreeam/lumora/*" -name "*.java" -exec sed -i \
             's/"Leaf"/"Lumora"/g' {} + 2>/dev/null
 
-          # 6. Rename LeafLitterBlock.java → LumoraLitterBlock.java
+          # 7. Rename LeafLitterBlock.java → LumoraLitterBlock.java (in MC source tree, not dreeam)
           LEAF_LITTER=$(find . -path "*/net/minecraft/*" -name "LeafLitterBlock.java" | head -1)
           if [ -n "$LEAF_LITTER" ]; then
             mv "$LEAF_LITTER" "$(dirname $LEAF_LITTER)/LumoraLitterBlock.java"
