@@ -105,7 +105,14 @@ jobs:
       - name: Find built JAR
         id: findjar
         run: |
-          JAR=$(find . -name "*.jar" -path "*/build/libs/*" ! -name "*sources*" ! -name "*dev*" | head -1)
+          echo "All JARs in build/libs:"
+          find . -name "*.jar" -path "*/build/libs/*" -exec ls -lh {} \;
+          # Prefer paperclip jar (the self-extracting launcher that includes all deps)
+          JAR=$(find . -name "*paperclip*" -name "*.jar" -path "*/build/libs/*" | head -1)
+          if [ -z "$JAR" ]; then
+            # Fallback: any non-sources, non-dev jar
+            JAR=$(find . -name "*.jar" -path "*/build/libs/*" ! -name "*sources*" ! -name "*dev*" | head -1)
+          fi
           echo "jar_path=$JAR" >> $GITHUB_OUTPUT
           echo "Found JAR: $JAR"
           ls -lh "$JAR"
