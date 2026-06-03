@@ -84,6 +84,23 @@ jobs:
             -e 's/"Leaf"/"Lumora"/g' \
             {} + 2>/dev/null
 
+          # Step 7: Fix any files where class name doesn't match filename
+          find . -path "*/src/*" -name "*.java" | while read f; do
+            # Extract the first public class/interface name
+            classname=$(grep -oP 'public\s+(?:class|interface|enum)\s+\K\w+' "$f" | head -1)
+            if [ -n "$classname" ]; then
+              basename_noext=$(basename "$f" .java)
+              if [ "$classname" != "$basename_noext" ]; then
+                dir=$(dirname "$f")
+                newf="$dir/$classname.java"
+                if [ ! -f "$newf" ]; then
+                  mv "$f" "$newf"
+                  echo "  Fixed filename: $basename_noext.java -> $classname.java"
+                fi
+              fi
+            fi
+          done
+
           echo "=== Rebrand complete ==="
 
       - name: Build server JAR
