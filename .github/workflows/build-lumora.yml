@@ -37,28 +37,51 @@ jobs:
       - name: Rebrand Leaf → Lumora
         run: |
           set +e
-          echo "=== Discovering source directories ==="
-          find . -maxdepth 5 -type d -name "java" | head -20
+          echo "=== Starting rebrand ==="
 
-          # Find all Java source files in applied patches
-          JAVA_FILES=$(find . -path "*/src/minecraft/java/*.java" -o -path "*/src/main/java/*.java" | head -5)
-          echo "Sample Java files:"
-          echo "$JAVA_FILES"
+          # Step 1: Rename files containing "Leaf" in their name to "Lumora"
+          echo "Renaming files..."
+          find . -path "*/src/*" -name "*Leaf*.java" -not -name "*Lumora*" | while read f; do
+            newf=$(echo "$f" | sed 's/Leaf/Lumora/g')
+            mv "$f" "$newf"
+            echo "  Renamed: $(basename $f) -> $(basename $newf)"
+          done
 
-          # Do broad sed replacements across all Java source files
-          echo "=== Running rebrand sed ==="
-          find . -path "*/src/minecraft/java/*.java" -exec sed -i \
-            's/REPORT TO LEAF/REPORT TO LUMORA/g' {} + 2>/dev/null
+          # Step 2: Rename files containing "leaf" in package paths
+          find . -path "*/src/*" -name "*leaf*.java" -not -name "*lumora*" | while read f; do
+            newf=$(echo "$f" | sed 's/leaf/lumora/g')
+            mkdir -p "$(dirname $newf)"
+            mv "$f" "$newf"
+            echo "  Renamed: $(basename $f) -> $(basename $newf)"
+          done
 
-          find . -path "*/src/minecraft/java/*.java" -exec sed -i \
-            's/"Leaf"/"Lumora"/g' {} + 2>/dev/null
+          # Step 3: Replace class/type references inside Java files
+          echo "Replacing class references..."
+          find . -path "*/src/*" -name "*.java" -exec sed -i \
+            -e 's/LeafCustomPayload/LumoraCustomPayload/g' \
+            -e 's/PermissionedLeafSubcommand/PermissionedLumoraSubcommand/g' \
+            -e 's/LeafSubcommand/LumoraSubcommand/g' \
+            -e 's/LeafCommand/LumoraCommand/g' \
+            -e 's/LeafCommands/LumoraCommands/g' \
+            -e 's/LeafConfig/LumoraConfig/g' \
+            -e 's/LeafGlobalConfig/LumoraGlobalConfig/g' \
+            -e 's/LeafConstants/LumoraConstants/g' \
+            -e 's/LeafVersionFetcher/LumoraVersionFetcher/g' \
+            -e 's/LeafSparkPlugin/LumoraSparkPlugin/g' \
+            -e 's/LeafServerConfigProvider/LumoraServerConfigProvider/g' \
+            -e 's/LeafLitterBlock/LumoraLitterBlock/g' \
+            -e 's/REPORT TO LEAF/REPORT TO LUMORA/g' \
+            -e 's/"Leaf"/"Lumora"/g' \
+            {} + 2>/dev/null
 
-          find . -path "*/src/main/java/*.java" -exec sed -i \
-            's/"Leaf"/"Lumora"/g' {} + 2>/dev/null
-
-          # Also update config file references
-          find . -name "lumora-global.yml" -exec sed -i \
-            's/^#/Lumora Global Configuration/g' {} + 2>/dev/null
+          # Step 4: Also rename package directories leaf -> lumora
+          find . -type d -name "leaf" -path "*/dreeam/*" | while read d; do
+            newd=$(dirname "$d")/lumora
+            if [ ! -d "$newd" ]; then
+              mv "$d" "$newd"
+              echo "  Renamed dir: leaf -> lumora"
+            fi
+          done
 
           echo "=== Rebrand complete ==="
 
